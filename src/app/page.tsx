@@ -1,103 +1,156 @@
-import Image from "next/image";
+// src/app/page.tsx
+"use client"
+
+import { useSession, signOut } from "next-auth/react"
+import Link from "next/link"
+import { useEffect } from "react"; // useEffect für potenzielle Fehlerbehandlung
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { data: session, status, update } = useSession(); // `update` Funktion vom Hook
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Effekt, um auf Session-Fehler zu reagieren
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      console.error("Refresh Token Fehler: Session abgelaufen oder ungültig.");
+      // Optional: Automatische Abmeldung oder Weiterleitung zur Login-Seite
+      // signOut({ callbackUrl: "/login?error=RefreshAccessTokenError" });
+    }
+  }, [session]); // Abhängigkeit von der Session
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
+
+  // Funktion zum Aktualisieren der Session mit `rememberMe`
+  // Diese Funktion sendet den 'rememberMe'-Wert an den 'session'-Callback
+  // in [...nextauth]/route.ts, der dann wiederum den 'jwt'-Callback triggert.
+  // Es beeinflusst NICHT direkt die Refresh Token Dauer nach dem Login.
+  // Die Dauer des Refresh Tokens wird beim LOGIN gesetzt und in der DB gespeichert.
+  // Diese 'update'-Funktion kann dazu dienen, andere Session-Daten zu aktualisieren,
+  // aber nicht die bereits in der DB gespeicherte Refresh-Token-Dauer.
+  // Um die Refresh Token Dauer zu ändern, müsste sich der Benutzer neu anmelden.
+  // Ich belasse die Buttons hier zur Demonstration der 'update'-Funktionalität,
+  // falls du andere Session-Daten darüber aktualisieren möchtest.
+  // Für das Refresh Token ist die rememberMe-Einstellung beim Anmelden entscheidend.
+  const handleRememberMeUpdate = async (value: boolean) => {
+    // Die 'update' Funktion kann verwendet werden, um Daten *innerhalb* der Session zu aktualisieren,
+    // die dann über den Session-Callback zurück in den JWT gelangen.
+    // Dies beeinflusst NICHT die Lebensdauer des Refresh Tokens in der Datenbank,
+    // die beim Login gesetzt wird. Die Session-MaxAge im Cookie wird durch diese Updates beeinflusst.
+    await update({ rememberMe: value });
+    console.log(`Session 'rememberMe' status updated to: ${value}`);
+    // Ein erneuter Aufruf von useSession() oder eine manuelle Aktualisierung ist nötig,
+    // um die Änderungen in der UI zu sehen, wenn sie vom Server zurückkommen.
+    // Ein update() call triggert oft eine Revalidierung der Session.
+  };
+
+  if (status === "loading") {
+    return <p className="p-8 text-center">Lade Session...</p>;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-8">
+      <h1 className="mb-8 text-4xl font-bold">Willkommen im Next.js Template!</h1>
+
+      {session ? (
+        <div className="rounded-lg bg-white p-8 shadow-md text-center max-w-xl w-full">
+          <p className="mb-4 text-lg">
+            Angemeldet als: <span className="font-semibold">{session.user?.email}</span>
+            {session.user?.role && (
+              <span className="ml-2 text-sm text-gray-500">({session.user.role})</span>
+            )}
+          </p>
+          <p className="mb-4 text-lg">
+            Session gültig bis:{" "}
+            <span className="font-semibold">
+              {session.expires ? new Date(session.expires).toLocaleString() : "Unbekannt"}
+            </span>
+          </p>
+
+          <p className="mb-2 text-md">
+            **Access Token:**{" "}
+            <span className="font-mono text-sm break-all">
+              {session.accessToken ? session.accessToken.substring(0, 30) + "..." : "Nicht verfügbar"}
+            </span>
+          </p>
+          <p className="mb-2 text-md">
+            **Access Token läuft ab:**{" "}
+            <span className="font-semibold">
+              {session.accessTokenExpires
+                ? new Date(session.accessTokenExpires).toLocaleString()
+                : "N/A"}
+            </span>
+          </p>
+          <p className="mb-2 text-md">
+            **Refresh Token:**{" "}
+            <span className="font-mono text-sm break-all">
+              {session.refreshToken ? session.refreshToken.substring(0, 30) + "..." : "Nicht verfügbar"}
+            </span>
+          </p>
+          <p className="mb-2 text-md">
+            **Refresh Token läuft ab:**{" "}
+            <span className="font-mono text-sm break-all">
+              {session.refreshTokenExpires
+                ? new Date(session.refreshTokenExpires).toLocaleString()
+                : "N/A"}
+            </span>
+          </p>
+
+          {session.error && (
+            <p className="mb-4 mt-4 text-center text-red-600 font-bold">
+              Fehler: {session.error === "RefreshAccessTokenError" ? "Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an." : session.error}
+            </p>
+          )}
+
+          {/* Hinweis: Diese Buttons ändern NICHT die Lebensdauer des Refresh Tokens in der DB.
+              Sie zeigen die Nutzung der 'update' Funktion, um Session-Daten zu beeinflussen,
+              was das Cookie-MaxAge der NextAuth Session beeinflussen könnte,
+              aber nicht die Langlebigkeit des Refresh Tokens selbst.
+              Die rememberMe-Einstellung wird beim LOGIN festgelegt.
+          */}
+          <div className="mb-4 mt-6">
+             <p className="mb-2 text-sm text-gray-600">
+               *Hinweis: Diese Buttons aktualisieren den 'rememberMe'-Status im Session-Cookie und JWT,
+               beeinflussen aber nicht die bereits festgelegte Lebensdauer des Refresh Tokens in der Datenbank.
+               Dafür ist die "Angemeldet bleiben"-Checkbox beim Login zuständig.*
+            </p>
+            <button
+              onClick={() => handleRememberMeUpdate(true)}
+              className="mr-2 rounded-md bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600 disabled:opacity-50"
+              disabled={status !== "authenticated"}>Session auf "Angemeldet bleiben" setzen</button>
+            <button
+              onClick={() => handleRememberMeUpdate(false)}
+              className="rounded-md bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-600 disabled:opacity-50"
+              disabled={status !== "authenticated"}
+            >
+              Session auf "Nur diese Sitzung" setzen
+            </button>
+          </div>
+
+          <button
+            onClick={handleSignOut}
+            className="mt-6 rounded-md bg-red-500 px-6 py-3 font-bold text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Abmelden
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      ) : (
+        <div className="text-center">
+          <p className="mb-4 text-lg">Sie sind nicht angemeldet.</p>
+          <Link
+            href="/login" // Link zur Login-Seite
+            className="rounded-md bg-blue-500 px-6 py-3 font-bold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            Anmelden
+          </Link>
+          <Link
+            href="/signup" // Link zur Registrierungsseite
+            className="ml-4 rounded-md bg-purple-500 px-6 py-3 font-bold text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+          >
+            Registrieren
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

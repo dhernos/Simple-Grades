@@ -1,0 +1,126 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id                String          @id @default(cuid())
+  name              String?
+  email             String          @unique // Changed to non-nullable as it's required for credentials login
+  emailVerified     DateTime?
+  password          String?         // Still nullable if you allow OAuth without password
+  image             String?
+
+  // --- NEU HINZUGEFÜGTE FELDER FÜR REFRESH TOKEN (Credentials Provider) ---
+  refreshToken      String?         // Speichert das Refresh Token für den Credentials-Benutzer
+  refreshTokenExpires DateTime?     // Speichert das Ablaufdatum des Refresh Tokens
+
+  accounts          Account[]
+  sessions          Session[]
+  Authenticator Authenticator[] // Optional for WebAuthn support
+  role              Role            @default(USER)
+  noten             Noten[]
+  subjects          Subject[]       // Relationship to Subject model
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? // Diese Felder bleiben für OAuth-Anbieter
+  access_token      String? // Diese Felder bleiben für OAuth-Anbieter
+  expires_at        Int?    // Diese Felder bleiben für OAuth-Anbieter
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID        String  @unique
+  userId              String
+  providerAccountId   String
+  credentialPublicKey String
+  counter             Int
+  credentialDeviceType String
+  credentialBackedUp  Boolean
+  transports          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  identifier String
+  timestamp DateTime
+  count     Int      @default(1)
+
+  @@index([identifier, timestamp])
+}
+
+model Noten {
+  id        String @id @default(cuid()) // Unique ID for the grade itself
+  note      Int
+  jahr      Int
+  userId    String // Foreign key to the User model
+  user      User   @relation(fields: [userId], references: [id])
+  subjectId String // This will store the ID of the related Subject
+  subject   Subject @relation(fields: [subjectId], references: [id]) // Establishes the relationship
+
+  @@index([userId])    // Index for faster queries on userId
+  @@index([subjectId]) // Index for faster queries on subjectId
+}
+
+model Subject {
+  id     String @id @default(uuid())
+  name   String
+  userId String // Um Fächer bestimmten Benutzern zuzuordnen
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([name, userId])
+  @@map("subjects")
+  Noten Noten[]
+}
