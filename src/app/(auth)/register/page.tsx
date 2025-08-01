@@ -194,7 +194,7 @@ export default function SignUpPage() {
             
             <Button
               type="submit"
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={loading || !isFormValid}
             >
               {loading ? "Registrieren..." : "Registrieren"}
