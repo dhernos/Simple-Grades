@@ -4,6 +4,11 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,12 +19,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    // Ein einziger, sauberer Aufruf, der alle Daten übergibt
     const result = await signIn("credentials", {
       redirect: false,
       email,
@@ -28,66 +35,105 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
+      // Eine generische Fehlermeldung ist sicherer, um nicht zu verraten, ob die E-Mail existiert
       setError("E-Mail oder Passwort ist falsch.");
-      console.error("Login failed:", result.error);
+      console.error("Login fehlgeschlagen:", result.error);
     } else if (result?.ok) {
-      // Manuelle Weiterleitung zur ursprünglichen Ziel-URL oder zum Dashboard
       router.push(callbackUrl);
     }
+    setLoading(false);
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-center text-2xl font-bold">Anmelden</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">
-              E-Mail:
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="w-full rounded-md border px-3 py-2 text-gray-700 focus:border-blue-500 focus:outline-none"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">
-              Passwort:
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full rounded-md border px-3 py-2 text-gray-700 focus:border-blue-500 focus:outline-none"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-6 flex items-center">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="rememberMe" className="text-sm text-gray-700">
-              Angemeldet bleiben
-            </label>
-          </div>
-          {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-          <button
-            type="submit"
-            className="w-full rounded-md bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          >
-            Anmelden
-          </button>
-        </form>
-      </div>
+      <Card className="w-full max-w-md mx-auto p-4 space-y-4 bg-white shadow-lg rounded-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
+          <CardDescription className="text-gray-600">Melde dich bei deinem Konto an</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">
+                E-Mail:
+              </label>
+              <Input
+                id="email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                className="w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="mb-6">
+              <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">
+                Passwort:
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  autoComplete="current-password"
+                  className="w-full"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute bottom-1 right-1 h-7 w-7"
+                  onClick={() => setShowPassword(!showPassword)}
+                  type="button"
+                >
+                  {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                  <span className="sr-only">Toggle password visibility</span>
+                </Button>
+              </div>
+            </div>
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  className="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={loading}
+                />
+                <label htmlFor="rememberMe" className="text-sm text-gray-700">
+                  Angemeldet bleiben
+                </label>
+              </div>
+              <Link href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                Passwort vergessen?
+              </Link>
+            </div>
+            
+            {error && <p className="mb-4 text-center text-red-500">{error}</p>}
+            
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "Anmelden..." : "Anmelden"}
+            </Button>
+          </form>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Noch kein Konto?{" "}
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              Jetzt registrieren
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
