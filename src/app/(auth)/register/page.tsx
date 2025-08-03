@@ -68,7 +68,7 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Registrierung erfolgreich! Du kannst dich jetzt anmelden. 🎉");
+        setSuccess("Registrierung erfolgreich! Du kannst dich jetzt anmelden.");
         setTimeout(() => {
           router.push("/login?signupSuccess=true");
         }, 2000);

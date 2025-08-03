@@ -22,6 +22,9 @@ model User {
   password          String?         // Still nullable if you allow OAuth without password
   image             String?
 
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+
   // --- NEU HINZUGEFÜGTE FELDER FÜR REFRESH TOKEN (Credentials Provider) ---
   refreshToken      String?         // Speichert das Refresh Token für den Credentials-Benutzer
   refreshTokenExpires DateTime?     // Speichert das Ablaufdatum des Refresh Tokens

@@ -232,7 +232,11 @@ async function fetchData() {
     if (!selectedItem) return;
 
     if (selectedItem.type === 'grade') {
-      // ... deine bestehende Logik zum Bearbeiten von Noten
+      const gradeToEdit = findGradeById(selectedItem.id);
+      if (gradeToEdit) {
+        setEditingGrade(gradeToEdit);
+        setIsEditDialogOpen(true);
+      }
     } else if (selectedItem.type === 'subject') {
       const subjectToEdit = findSubjectById(selectedItem.id);
       if (subjectToEdit) {
