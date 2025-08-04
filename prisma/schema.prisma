@@ -22,6 +22,9 @@ model User {
   password          String?         // Still nullable if you allow OAuth without password
   image             String?
 
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+
   // --- NEU HINZUGEFÜGTE FELDER FÜR REFRESH TOKEN (Credentials Provider) ---
   refreshToken      String?         // Speichert das Refresh Token für den Credentials-Benutzer
   refreshTokenExpires DateTime?     // Speichert das Ablaufdatum des Refresh Tokens
@@ -108,7 +111,8 @@ model Noten {
   userId    String // Foreign key to the User model
   user      User   @relation(fields: [userId], references: [id])
   subjectId String // This will store the ID of the related Subject
-  subject   Subject @relation(fields: [subjectId], references: [id]) // Establishes the relationship
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
   @@index([userId])    // Index for faster queries on userId
   @@index([subjectId]) // Index for faster queries on subjectId

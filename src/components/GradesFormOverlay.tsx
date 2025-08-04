@@ -87,7 +87,11 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
       const response = await fetch('/api/grades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subjectId: selectedSubjectId, note, jahr }),
+        body: JSON.stringify({
+          subject: { id: selectedSubjectId },
+          note,
+          jahr,
+        }),
       });
 
       if (!response.ok) {
