@@ -154,7 +154,28 @@ export const authOptions = {
         token.exp = Math.floor((token.accessTokenExpires as number) / 1000);
         return token;
       }
+      if (token.id && token.refreshToken) {
+        try {
+          const userFromDb = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { refreshToken: true },
+          });
 
+          // Wenn kein User gefunden, der Refresh Token fehlt oder nicht übereinstimmt.
+          if (!userFromDb || !userFromDb.refreshToken || userFromDb.refreshToken !== token.refreshToken) {
+            console.warn(`JWT Callback: Mismatched or missing refresh token for user ID: ${token.id}. Invalidating session.`);
+            return { ...token, error: "SessionInvalidated" as const };
+          }
+        } catch (error) {
+          console.error("JWT Callback: Database error during refresh token check.", error);
+          return { ...token, error: "SessionInvalidated" as const };
+        }
+      } else {
+          // Falls der Token keine ID oder keinen refreshToken hat, ist er ungültig.
+          return { ...token, error: "SessionInvalidated" as const };
+      }
+
+      // Wenn der Access Token abgelaufen ist, versuche ihn zu aktualisieren
       if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
         token.exp = Math.floor((token.accessTokenExpires as number) / 1000);
         return token;
@@ -166,7 +187,6 @@ export const authOptions = {
       if (refreshedToken.accessTokenExpires) {
         refreshedToken.exp = Math.floor((refreshedToken.accessTokenExpires as number) / 1000);
       } else {
-        // Füge 'exp' hier hinzu, für den Fall, dass der Refresh fehlschlägt
         refreshedToken.exp = Math.floor(Date.now() / 1000) - 10;
       }
       return refreshedToken;

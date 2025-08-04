@@ -1,18 +1,14 @@
+// src/app/api/subjects/[id]/route.ts
+
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { PrismaClient } from "@prisma/client"
+import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
 
 const prisma = new PrismaClient();
 
 // PUT-Methode: Aktualisiert ein Fach
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
-  }
-
-  const id = params.id; // Behebung der Next.js-Warnung
+const putSubjectHandler = async (req: Request, session: any, params: { id: string }) => {
+  const { id } = params;
   const { name } = await req.json();
 
   if (!name || typeof name !== 'string') {
@@ -23,7 +19,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const updatedSubject = await prisma.subject.update({
       where: {
         id,
-        userId: session.user.id,
+        userId: session.user.id, // Hier wird der Benutzer abgeglichen
       },
       data: {
         name,
@@ -37,21 +33,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // DELETE-Methode: Löscht ein Fach und alle zugehörigen Noten
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
-  }
-
-  const id = params.id; // Behebung der Next.js-Warnung
+const deleteSubjectHandler = async (req: Request, session: any, params: { id: string }) => {
+  const { id } = params;
 
   try {
-    // Da wir onDelete: Cascade im Schema haben, löscht Prisma
-    // automatisch auch alle zugehörigen Noten.
     await prisma.subject.delete({
       where: {
         id,
-        userId: session.user.id,
+        userId: session.user.id, // Hier wird der Benutzer abgeglichen
       },
     });
 
@@ -61,3 +50,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     return NextResponse.json({ error: 'Fach nicht gefunden' }, { status: 404 });
   }
 }
+
+export const PUT = protectedRoute(putSubjectHandler);
+export const DELETE = protectedRoute(deleteSubjectHandler);

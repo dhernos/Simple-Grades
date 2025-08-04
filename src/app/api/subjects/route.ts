@@ -1,21 +1,18 @@
+// src/app/api/subjects/route.ts
+
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { PrismaClient } from "@prisma/client"
+import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
 
+const prisma = new PrismaClient();
 
-// GET-Anfrage, um alle Fächer eines Benutzers abzurufen
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  const prisma = new PrismaClient();
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
-  }
-
+// Hier ist dein GET-Handler. Er ist jetzt viel sauberer,
+// da die Authentifizierung vom Wrapper übernommen wird.
+const getSubjectsHandler = async (req: Request, session: any) => {
   try {
     const subjects = await prisma.subject.findMany({
       where: {
-        userId: session.user.id,
+        userId: session.user.id, // Die Benutzer-ID ist jetzt sicher verfügbar
       },
       select: {
         id: true,
@@ -28,16 +25,10 @@ export async function GET() {
     console.error('Fehler beim Abrufen der Fächer:', error);
     return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
   }
-}
+};
 
-// POST-Anfrage, um ein neues Fach hinzuzufügen
-export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  const prisma = new PrismaClient();
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
-  }
-
+// Hier ist dein POST-Handler. Die gleiche Logik gilt hier.
+const postSubjectHandler = async (req: Request, session: any) => {
   const { name } = await req.json();
 
   if (!name || typeof name !== 'string') {
@@ -48,7 +39,7 @@ export async function POST(req: Request) {
     const newSubject = await prisma.subject.create({
       data: {
         name: name,
-        userId: session.user.id,
+        userId: session.user.id, // Verwende die Benutzer-ID aus der Session
       },
     });
     return NextResponse.json(newSubject, { status: 201 });
@@ -59,4 +50,7 @@ export async function POST(req: Request) {
     console.error('Fehler beim Erstellen des Fachs:', error);
     return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
   }
-}
+};
+
+export const GET = protectedRoute(getSubjectsHandler);
+export const POST = protectedRoute(postSubjectHandler);
