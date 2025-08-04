@@ -12,8 +12,8 @@ const prisma = new PrismaClient();
 
 // --- Hilfsfunktion zum Erneuern des Access Tokens ---
 async function refreshAccessToken(token: JWT) {
- try {
- const user = await prisma.user.findUnique({
+  try {
+    const user = await prisma.user.findUnique({
       where: { id: token.id as string },
       select: {
         id: true,
@@ -28,7 +28,17 @@ async function refreshAccessToken(token: JWT) {
     }
 
     if (Date.now() > user.refreshTokenExpires.getTime()) {
-      console.error("RefreshAccessTokenError: Refresh Token has expired for user:", token.id);
+      console.error("RefreshAccessTokenError: Refresh Token has expired for user:", token.id, " - Deleting token from database.");
+      
+      // Lösche den abgelaufenen Refresh Token aus der Datenbank
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          refreshToken: null,
+          refreshTokenExpires: null,
+        },
+      });
+
       return { ...token, error: "RefreshAccessTokenError" as const };
     }
 
@@ -156,11 +166,25 @@ export const authOptions = {
       if (refreshedToken.accessTokenExpires) {
         refreshedToken.exp = Math.floor((refreshedToken.accessTokenExpires as number) / 1000);
       } else {
+        // Füge 'exp' hier hinzu, für den Fall, dass der Refresh fehlschlägt
         refreshedToken.exp = Math.floor(Date.now() / 1000) - 10;
       }
       return refreshedToken;
     },
+
     async session({ session, token }) {
+      // Wenn ein Fehler vorliegt, z. B. weil der Refresh Token ungültig war,
+      // beenden wir die Session, indem wir die user-Informationen entfernen
+      // und das Ablaufdatum in der Vergangenheit setzen.
+      if (token.error === "RefreshAccessTokenError") {
+        return {
+          ...session,
+          user: null,
+          expires: new Date(0).toISOString(),
+          error: "RefreshAccessTokenError",
+        };
+      }
+
       if (token?.id) {
         session.user.id = token.id as string;
         session.user.role = token.role;

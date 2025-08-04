@@ -1,4 +1,3 @@
-// src/app/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -9,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { ForgotPasswordDialog } from "@/components/forgot-password-dialog"; 
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,6 +21,9 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Zustand für den Dialog
+  const [isForgotPasswordDialogOpen, setIsForgotPasswordDialogOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +38,6 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      // Eine generische Fehlermeldung ist sicherer, um nicht zu verraten, ob die E-Mail existiert
       setError("E-Mail oder Passwort ist falsch.");
       console.error("Login fehlgeschlagen:", result.error);
     } else if (result?.ok) {
@@ -88,7 +90,7 @@ export default function LoginPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute bottom-1 right-1 h-7 w-7"
+                  className="absolute bottom-1 right-1 h-7 w-7 cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                   type="button"
                 >
@@ -107,20 +109,25 @@ export default function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   disabled={loading}
                 />
-                <label htmlFor="rememberMe" className="text-sm text-gray-700">
+                <label htmlFor="rememberMe" className="text-sm text-gray-700 cursor-pointer">
                   Angemeldet bleiben
                 </label>
               </div>
-              <Link href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+              {/* Ändere den Link-Handler */}
+              <button
+                type="button"
+                onClick={() => setIsForgotPasswordDialogOpen(true)}
+                className="text-sm font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
+              >
                 Passwort vergessen?
-              </Link>
+              </button>
             </div>
             
             {error && <p className="mb-4 text-center text-red-500">{error}</p>}
             
             <Button
               type="submit"
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={loading}
             >
               {loading ? "Anmelden..." : "Anmelden"}
@@ -134,6 +141,12 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
+      
+      {/* Füge die neue Dialog-Komponente hinzu */}
+      <ForgotPasswordDialog
+        isOpen={isForgotPasswordDialogOpen}
+        onClose={() => setIsForgotPasswordDialogOpen(false)}
+      />
     </div>
   );
 }

@@ -7,7 +7,6 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-// Import the icons from the new file
 import { EyeIcon, EyeOffIcon } from "@/components/ui/eye_icon";
 
 // Diese Funktion bewertet die Stärke eines Passworts
@@ -68,7 +67,7 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Registrierung erfolgreich! Du kannst dich jetzt anmelden. 🎉");
+        setSuccess("Registrierung erfolgreich! Du kannst dich jetzt anmelden.");
         setTimeout(() => {
           router.push("/login?signupSuccess=true");
         }, 2000);
@@ -163,7 +162,7 @@ export default function SignUpPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute bottom-1 right-1 h-7 w-7"
+                  className="absolute bottom-1 right-1 h-7 w-7 cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                   type="button"
                 >
@@ -194,7 +193,7 @@ export default function SignUpPage() {
             
             <Button
               type="submit"
-              className="w-full"
+              className="w-full cursor-pointer"
               disabled={loading || !isFormValid}
             >
               {loading ? "Registrieren..." : "Registrieren"}

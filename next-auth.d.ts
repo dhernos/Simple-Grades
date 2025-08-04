@@ -45,5 +45,6 @@ declare module "next-auth/jwt" {
     refreshToken: string;
     refreshTokenExpires: number; // ✨ Hinzugefügt: Ablaufdatum des Refresh Tokens im JWT
     error?: "RefreshAccessTokenError";
+    exp?: number;
   }
 }
