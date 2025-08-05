@@ -16,6 +16,7 @@ export default function TimetablePage() {
   const [editMode, setEditMode] = useState(false);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshSubjectsKey, setRefreshSubjectsKey] = useState(0);
 
@@ -44,7 +45,6 @@ export default function TimetablePage() {
   };
   
   const handleSubjectAdded = () => {
-    // Aktualisiert den Schlüssel, um die Fächer neu zu laden
     setRefreshSubjectsKey(prevKey => prevKey + 1);
   };
 
@@ -73,7 +73,7 @@ export default function TimetablePage() {
           {editMode && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button>Fach hinzufügen</Button>
+                <Button disabled={isSaving}>Fach hinzufügen</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -83,14 +83,13 @@ export default function TimetablePage() {
               </DialogContent>
             </Dialog>
           )}
-          <Button onClick={toggleEditMode}>
-            {editMode ? "Bearbeitung beenden" : "Bearbeiten"}
+          <Button onClick={toggleEditMode} disabled={isSaving}>
+            {isSaving ? "Speichern..." : editMode ? "Bearbeitung beenden" : "Bearbeiten"}
           </Button>
         </div>
       </div>
       
-      {/* Die ausgelagerte Tabelle-Komponente wird hier gerendert */}
-      <Timetable editMode={editMode} subjects={subjects} />
+      <Timetable editMode={editMode} subjects={subjects} setIsSaving={setIsSaving} />
     </div>
   );
 }

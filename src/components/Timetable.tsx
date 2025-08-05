@@ -18,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
-import { useSession } from "next-auth/react";
 
 interface Subject {
   id: string;
@@ -42,12 +40,12 @@ interface Row {
 interface TimetableProps {
   editMode: boolean;
   subjects: Subject[];
+  setIsSaving: (isSaving: boolean) => void;
 }
 
-export function Timetable({ editMode, subjects }: TimetableProps) {
+export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [newRowLabel, setNewRowLabel] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
 
   // Lade den Stundenplan beim ersten Laden der Komponente
@@ -128,12 +126,6 @@ export function Timetable({ editMode, subjects }: TimetableProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-      <div className="flex justify-end mb-4">
-        {isSaving && <div className="flex items-center text-sm text-gray-500">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Speichern...
-        </div>}
-      </div>
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
@@ -168,7 +160,7 @@ export function Timetable({ editMode, subjects }: TimetableProps) {
                         <SelectValue placeholder="Fach wählen" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="clear-selection">Fach löschen</SelectItem>
+                        <SelectItem value="clear-selection">Fach wählen</SelectItem>
                         {subjects.map((subject) => (
                           <SelectItem key={subject.id} value={subject.id}>
                             {subject.name}
