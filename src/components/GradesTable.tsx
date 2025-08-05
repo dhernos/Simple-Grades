@@ -1,6 +1,8 @@
+// src/components/GradesTable.tsx
+
 "use client";
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { SkeletonGradesTable } from "@/components/SkeletonGradesTable";
 import { ItemDropdown } from "@/components/ItemDropdown";
 import { DeleteDialog } from "@/components/DeleteDialog";
@@ -13,11 +15,11 @@ interface SubjectToEdit {
 }
 
 interface GradeData {
-  id: string; // Fügen Sie eine ID für jede Note hinzu
+  id: string;
   jahr: number;
   note: number;
   subject: {
-    id: string; // Fügen Sie eine ID für jedes Fach hinzu
+    id: string;
     name: string;
   };
 }
@@ -25,7 +27,7 @@ interface GradeData {
 interface SubjectData {
   id: string;
   fach: string;
-  noten: GradeData[]; // Ändern Sie dies, um GradeData-Objekte zu speichern
+  noten: GradeData[];
   durchschnitt: number;
 }
 
@@ -39,7 +41,9 @@ interface YearData {
 interface SelectedItem {
   type: 'subject' | 'grade';
   id: string;
-  name?: string; // Für Fachnamen
+  jahr?: number;
+  x: number;
+  y: number;
 }
 
 export function GradesTable() {
@@ -49,40 +53,59 @@ export function GradesTable() {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+  const [isDeletingGradesOnly, setIsDeletingGradesOnly] = useState<boolean>(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [editingGrade, setEditingGrade] = useState<{ id: string; note: number; jahr: number } | null>(null);
   const [isEditSubjectDialogOpen, setIsEditSubjectDialogOpen] = useState<boolean>(false);
   const [editingSubject, setEditingSubject] = useState<SubjectToEdit | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-  if (data.length > 0) {
-    processDataByYear(data);
-  }
-}, [data]);
-
-async function fetchData() {
-  try {
-    setIsLoading(true);
-    const response = await fetch(`/api/grades`); 
-    if (!response.ok) {
-      throw new Error("Failed to fetch data");
+    if (data.length > 0) {
+      processDataByYear(data);
     }
-    const jsonData = await response.json();
-    setData(jsonData);
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
-    setIsLoading(false);
+  }, [data]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // Wenn das Dropdown offen ist und der Klick nicht im Dropdown-Menü stattfand
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setSelectedItem(null);
+      }
+    }
+    
+    // Event-Listener zum Dokument hinzufügen
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    // Cleanup-Funktion, um den Event-Listener zu entfernen, wenn die Komponente unmountet wird
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]); // Wird nur einmal beim Mounten ausgeführt
+
+  async function fetchData() {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/grades`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const jsonData = await response.json();
+      setData(jsonData);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
-}
 
   function processDataByYear(rawData: GradeData[]) {
     const groupedByYear: { [jahr: number]: GradeData[] } = {};
-
     rawData.forEach((item) => {
       if (!groupedByYear[item.jahr]) {
         groupedByYear[item.jahr] = [];
@@ -94,7 +117,6 @@ async function fetchData() {
       ([jahrStr, yearGrades]) => {
         const jahr = parseInt(jahrStr);
         const groupedBySubject: { [fachId: string]: GradeData[] } = {};
-
         yearGrades.forEach((grade) => {
           if (!groupedBySubject[grade.subject.id]) {
             groupedBySubject[grade.subject.id] = [];
@@ -118,7 +140,6 @@ async function fetchData() {
         );
 
         const maxNotesCount = Math.max(...subjects.map(s => s.noten.length), 0);
-
         let totalAverage: number = 0;
         if (subjects.length > 0) {
           totalAverage = subjects.reduce((sum, subject) => sum + subject.durchschnitt, 0) / subjects.length;
@@ -135,35 +156,67 @@ async function fetchData() {
     setYearData(processedYearData);
   }
 
-  const handleItemClick = (e: React.MouseEvent, item: SelectedItem) => {
+  const handleItemClick = (e: React.MouseEvent, type: 'subject' | 'grade', id: string, jahr?: number) => {
     e.stopPropagation();
-    setSelectedItem(item);
+    if (selectedItem?.id === id && selectedItem?.type === type && selectedItem?.jahr === jahr) {
+      setSelectedItem(null);
+    } else {
+      setSelectedItem({
+        type,
+        id,
+        jahr,
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
   };
 
   const handleDeleteItem = async () => {
     if (!selectedItem) return;
-
     try {
-      const isSubject = selectedItem.type === 'subject';
-      const endpoint = isSubject
-        ? `/api/subjects/${selectedItem.id}` // NEUE ROUTE FÜR FÄCHER
-        : `/api/grades/${selectedItem.id}`;
-      
+      let endpoint: string;
+      let body: string | null = null;
+      let headers: HeadersInit = {};
+
+      if (selectedItem.type === 'subject') {
+        if (isDeletingGradesOnly) {
+          endpoint = `/api/grades/bySubjectAndYear`;
+          body = JSON.stringify({ subjectId: selectedItem.id, year: selectedItem.jahr });
+          headers = { 'Content-Type': 'application/json' };
+        } else {
+          endpoint = `/api/subjects/${selectedItem.id}`;
+          body = null;
+        }
+      } else if (selectedItem.type === 'grade') {
+        endpoint = `/api/grades/${selectedItem.id}`;
+        body = null;
+      } else {
+        return;
+      }
+
       const response = await fetch(endpoint, {
         method: 'DELETE',
+        headers,
+        body,
       });
 
       if (!response.ok) {
         throw new Error("Failed to delete item");
       }
-      window.location.reload(); 
+      window.location.reload();
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSelectedItem(null);
       setIsDeleteDialogOpen(false);
+      setIsDeletingGradesOnly(false);
     }
   };
+
+  const handleDeleteGrade = () => {
+    setIsDeletingGradesOnly(false);
+    setIsDeleteDialogOpen(true);
+  }
 
   const findGradeById = (id: string) => {
     for (const grade of data) {
@@ -187,10 +240,8 @@ async function fetchData() {
       if (!response.ok) {
         throw new Error("Failed to update grade");
       }
-
-      // Daten neu laden, um die UI zu aktualisieren
       fetchData();
-      setIsEditDialogOpen(false); // Modal schließen
+      setIsEditDialogOpen(false);
       setEditingGrade(null);
     } catch (err: any) {
       setError(err.message);
@@ -209,7 +260,7 @@ async function fetchData() {
       if (!response.ok) {
         throw new Error("Failed to update subject");
       }
-      fetchData(); // Daten neu laden
+      fetchData();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -230,7 +281,6 @@ async function fetchData() {
 
   const handleEditItem = () => {
     if (!selectedItem) return;
-
     if (selectedItem.type === 'grade') {
       const gradeToEdit = findGradeById(selectedItem.id);
       if (gradeToEdit) {
@@ -246,6 +296,29 @@ async function fetchData() {
     }
     setSelectedItem(null);
   };
+  
+  useEffect(() => {
+    if (selectedItem && dropdownRef.current) {
+      const dropdownElement = dropdownRef.current;
+      const dropdownWidth = dropdownElement.offsetWidth;
+      const dropdownHeight = dropdownElement.offsetHeight;
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      let newX = selectedItem.x;
+      let newY = selectedItem.y;
+
+      if (newX + dropdownWidth > windowWidth) {
+        newX = windowWidth - dropdownWidth - 10;
+      }
+      if (newY + dropdownHeight > windowHeight) {
+        newY = windowHeight - dropdownHeight - 10;
+      }
+
+      dropdownElement.style.top = `${newY}px`;
+      dropdownElement.style.left = `${newX}px`;
+    }
+  }, [selectedItem]);
 
   if (isLoading) {
     return <SkeletonGradesTable />;
@@ -254,13 +327,13 @@ async function fetchData() {
   if (error) {
     return <div className="text-red-500 text-center">Fehler: {error}</div>;
   }
-  
+
   if (yearData.length === 0) {
-      return <div className="text-center text-gray-500">Noch keine Noten vorhanden. Fügen Sie über den Button eine hinzu!</div>;
+    return <div className="text-center text-gray-500">Noch keine Noten vorhanden. Fügen Sie über den Button eine hinzu!</div>;
   }
 
   return (
-    <div onClick={() => setSelectedItem(null)}>
+    <div ref={wrapperRef}>
       {yearData.map((yearEntry) => (
         <div key={yearEntry.jahr} className="bg-white rounded-lg shadow-md p-4 mb-8">
           <h2 className="text-2xl font-bold mb-4">Jahr: {yearEntry.jahr}</h2>
@@ -279,36 +352,26 @@ async function fetchData() {
                 <TableRow key={`${yearEntry.jahr}-${subject.id}`}>
                   <TableCell
                     className="text-left relative cursor-pointer hover:bg-gray-100"
-                    onClick={(e) => handleItemClick(e, { type: 'subject', id: subject.id, name: subject.fach })}
+                    onClick={(e) => handleItemClick(e, 'subject', subject.id, yearEntry.jahr)}
                   >
                     {subject.fach}
-                    {selectedItem?.type === 'subject' && selectedItem.id === subject.id && (
-                      <ItemDropdown 
-                        onEdit={handleEditItem}
-                        onDelete={() => setIsDeleteDialogOpen(true)}
-                      />
-                    )}
                   </TableCell>
-                  {Array.from({ length: yearEntry.maxNoten }).map((_, i) => (
-                    <TableCell 
-                      key={`${subject.id}-note-${i}`} 
-                      className="text-right relative cursor-pointer hover:bg-gray-100"
-                      onClick={(e) => {
-                        const grade = subject.noten[i];
-                        if (grade) {
-                          handleItemClick(e, { type: 'grade', id: grade.id });
-                        }
-                      }}
-                    >
-                      {subject.noten[i]?.note !== undefined ? subject.noten[i].note : "-"}
-                      {selectedItem?.type === 'grade' && selectedItem.id === subject.noten[i]?.id && (
-                        <ItemDropdown
-                          onEdit={handleEditItem}
-                          onDelete={() => setIsDeleteDialogOpen(true)}
-                        />
-                      )}
-                    </TableCell>
-                  ))}
+                  {Array.from({ length: yearEntry.maxNoten }).map((_, i) => {
+                    const grade = subject.noten[i];
+                    return (
+                      <TableCell
+                        key={`${subject.id}-note-${i}`}
+                        className="text-right relative cursor-pointer hover:bg-gray-100"
+                        onClick={(e) => {
+                          if (grade) {
+                            handleItemClick(e, 'grade', grade.id);
+                          }
+                        }}
+                      >
+                        {grade?.note !== undefined ? grade.note : "-"}
+                      </TableCell>
+                    );
+                  })}
                   <TableCell className="text-right">{subject.durchschnitt.toFixed(2)}</TableCell>
                 </TableRow>
               ))}
@@ -323,11 +386,41 @@ async function fetchData() {
           </Table>
         </div>
       ))}
+
+      {selectedItem && (
+        <div 
+          ref={dropdownRef}
+          style={{ 
+            position: 'fixed', 
+            top: selectedItem.y, 
+            left: selectedItem.x, 
+            zIndex: 1000 
+          }}
+          // Der Klick innerhalb des Dropdowns stoppt die Event-Propagation, um das Schließen zu verhindern
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ItemDropdown
+            type={selectedItem.type}
+            onEdit={handleEditItem}
+            onDeleteGradesOnly={() => {
+              setIsDeletingGradesOnly(true);
+              setIsDeleteDialogOpen(true);
+            }}
+            onDeleteSubject={() => {
+              setIsDeletingGradesOnly(false);
+              setIsDeleteDialogOpen(true);
+            }}
+            onDeleteGrade={handleDeleteGrade}
+          />
+        </div>
+      )}
+      
       <DeleteDialog
         isOpen={isDeleteDialogOpen}
         onConfirm={handleDeleteItem}
         onCancel={() => setIsDeleteDialogOpen(false)}
         itemType={selectedItem?.type || ''}
+        isDeletingGradesOnly={isDeletingGradesOnly}
       />
       {editingGrade && (
         <EditGradeDialog
@@ -339,7 +432,6 @@ async function fetchData() {
           initialJahr={editingGrade.jahr}
         />
       )}
-
       {editingSubject && (
         <EditSubjectDialog
           isOpen={isEditSubjectDialogOpen}

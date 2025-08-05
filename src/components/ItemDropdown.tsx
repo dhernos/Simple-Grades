@@ -1,13 +1,17 @@
+// src/components/ItemDropdown.tsx
 import { Button } from "@/components/ui/button";
 
 interface ItemDropdownProps {
+  type: 'subject' | 'grade'; // Neu: Unterscheidet zwischen Fach und Note
   onEdit: () => void;
-  onDelete: () => void;
+  onDeleteGradesOnly: () => void;
+  onDeleteSubject: () => void;
+  onDeleteGrade: () => void; // Neu: Callback zum Löschen einer einzelnen Note
 }
 
-export function ItemDropdown({ onEdit, onDelete }: ItemDropdownProps) {
+export function ItemDropdown({ type, onEdit, onDeleteGradesOnly, onDeleteSubject, onDeleteGrade }: ItemDropdownProps) {
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 right-0 transform translate-x-[calc(100%+8px)] z-10 bg-white shadow-lg rounded-md p-1 flex flex-col gap-1 w-24">
+    <div className="z-10 bg-white shadow-lg rounded-md p-1 flex flex-col gap-1 w-auto">
       <Button 
         variant="ghost" 
         size="sm" 
@@ -16,14 +20,40 @@ export function ItemDropdown({ onEdit, onDelete }: ItemDropdownProps) {
       >
         Bearbeiten
       </Button>
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
-        onClick={(e) => { e.stopPropagation(); onDelete(); }}
-      >
-        Löschen
-      </Button>
+
+      {/* Buttons für ein Fach */}
+      {type === 'subject' && (
+        <>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+            onClick={(e) => { e.stopPropagation(); onDeleteGradesOnly(); }}
+          >
+            Zeile löschen
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+            onClick={(e) => { e.stopPropagation(); onDeleteSubject(); }}
+          >
+            Ganzes Fach löschen
+          </Button>
+        </>
+      )}
+
+      {/* Button für eine Note */}
+      {type === 'grade' && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+          onClick={(e) => { e.stopPropagation(); onDeleteGrade(); }}
+        >
+          Note löschen
+        </Button>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// src/components/DeleteDialog.tsx
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,10 +15,18 @@ interface DeleteDialogProps {
   onCancel: () => void;
   onConfirm: () => void;
   itemType: string;
+  isDeletingGradesOnly?: boolean; // Neu: Hinzufügen
 }
 
-export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType }: DeleteDialogProps) {
+export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType, isDeletingGradesOnly = false }: DeleteDialogProps) {
   const isSubject = itemType === 'subject';
+  
+  let descriptionText = "Diese Aktion kann nicht rückgängig gemacht werden. Dies wird die ausgewählte Note permanent löschen.";
+  if (isSubject && isDeletingGradesOnly) {
+    descriptionText = "Diese Aktion kann nicht rückgängig gemacht werden. Dies wird alle Noten in der ausgewählten Zeile permanent löschen, das Fach selbst bleibt jedoch erhalten.";
+  } else if (isSubject) {
+    descriptionText = "Diese Aktion kann nicht rückgängig gemacht werden. Dies wird das Fach und alle zugehörigen Noten permanent löschen.";
+  }
   
   return (
     <AlertDialog open={isOpen} onOpenChange={onCancel}>
@@ -25,16 +34,13 @@ export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType }: DeleteDi
         <AlertDialogHeader>
           <AlertDialogTitle>Sind Sie sich sicher?</AlertDialogTitle>
           <AlertDialogDescription>
-            {isSubject
-              ? "Diese Aktion kann nicht rückgängig gemacht werden. Dies wird das Fach und alle zugehörigen Noten permanent löschen."
-              : "Diese Aktion kann nicht rückgängig gemacht werden. Dies wird die ausgewählte Note permanent löschen."
-            }
+            {descriptionText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Abbrechen</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} className="bg-red-500 hover:bg-red-600">
-            {isSubject ? "Fach löschen" : "Note löschen"}
+            {isSubject ? (isDeletingGradesOnly ? "Zeile löschen" : "Fach löschen") : "Note löschen"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
