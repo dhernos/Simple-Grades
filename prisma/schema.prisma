@@ -35,6 +35,7 @@ model User {
   role              Role            @default(USER)
   noten             Noten[]
   subjects          Subject[]       // Relationship to Subject model
+  timetableRows         TimetableRow[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,8 +124,33 @@ model Subject {
   name   String
   userId String // Um Fächer bestimmten Benutzern zuzuordnen
   user   User   @relation(fields: [userId], references: [id])
+  timetableCells  TimetableCell[]
 
   @@unique([name, userId])
   @@map("subjects")
   Noten Noten[]
+}
+
+model TimetableRow {
+  id           String @id @default(cuid())
+  label        String
+  rowIndex     Int    // Index zur Beibehaltung der Reihenfolge der Zeilen
+  userId       String
+  user         User   @relation(fields: [userId], references: [id])
+  cells        TimetableCell[]
+
+  @@unique([userId, rowIndex])
+  @@index([userId])
+}
+
+model TimetableCell {
+  id             String       @id @default(cuid())
+  day            Int          // Index für den Tag (0 = Montag, 1 = Dienstag, etc.)
+  subjectId      String?      // Foreign key zu einem Fach
+  subject        Subject?     @relation(fields: [subjectId], references: [id])
+  timetableRowId String
+  timetableRow   TimetableRow @relation(fields: [timetableRowId], references: [id], onDelete: Cascade)
+
+  @@unique([timetableRowId, day])
+  @@index([timetableRowId])
 }
