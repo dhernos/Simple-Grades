@@ -9,6 +9,7 @@ import type { JWT } from "next-auth/jwt";
 import type { SessionStrategy } from "next-auth";
 
 const prisma = new PrismaClient();
+const isImmediateCheckEnabled = process.env.IMMEDIATE_SESSION_CHECK_MODE === 'true';
 
 async function refreshAccessToken(token: JWT) {
   try {
@@ -68,6 +69,14 @@ async function refreshAccessToken(token: JWT) {
     console.error("Error refreshing access token:", error);
     return { ...token, error: "RefreshAccessTokenError" as const };
   }
+}
+
+async function checkRefreshTokenInDb(userId: string, tokenRefreshToken: string) {
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { refreshToken: true },
+    });
+    return user && user.refreshToken === tokenRefreshToken;
 }
 
 export const authOptions = {
@@ -158,12 +167,18 @@ export const authOptions = {
       // Die JWT-Bibliothek prüft den exp-Wert automatisch.
       // Wir müssen hier nur den Refresh-Prozess starten, wenn der Token abgelaufen ist.
       // Hier keine manuelle Prüfung des Ablaufdatums
-      if (Date.now() < (token.accessTokenExpires as number)) {
+      if (isImmediateCheckEnabled) {
+        const isTokenValid = await checkRefreshTokenInDb(token.id as string, token.refreshToken as string);
+        if (isTokenValid) {
         // Access Token ist noch gültig, gib den Token unverändert zurück
         return token;
-      }
-
-      // Wenn wir hier ankommen, ist der Access Token abgelaufen
+        }
+      }else {
+        if (!token.accessTokenExpires || Date.now() < token.accessTokenExpires) {
+            return token; // Access Token ist noch gültig, gib den Token unverändert zurück
+        }
+      }
+    // Wenn wir hier ankommen, ist der Access Token abgelaufen
       console.log("Access Token expired, attempting to refresh...");
       const refreshedToken = await refreshAccessToken(token);
 
