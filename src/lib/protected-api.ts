@@ -24,8 +24,6 @@ export const protectedRoute = (handler: ProtectedHandler) => {
       }, { status: 401 });
     }
 
-    // Übergabe der Argumente:
-    // Der ursprüngliche Handler wird mit der Request, der Session und den params aufgerufen.
     return handler(req, session, context.params);
   };
 };

@@ -14,6 +14,7 @@ export default withAuth(
 
     // 1. Überprüfung des Tokens auf Fehler
     // Wir prüfen jetzt nur noch das `error`-Feld, das im jwt-Callback gesetzt wird.
+    
     if (!token || token.error) {
       console.warn(`Middleware: Token error '${token?.error}' detected. Forcing logout.`);
       // Leite den Benutzer sofort zum Login weiter und invalidiere die Session

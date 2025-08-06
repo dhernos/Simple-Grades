@@ -9,7 +9,6 @@ import type { JWT } from "next-auth/jwt";
 import type { SessionStrategy } from "next-auth";
 
 const prisma = new PrismaClient();
-const isImmediateCheckEnabled = process.env.IMMEDIATE_SESSION_CHECK_MODE === 'true';
 
 async function refreshAccessToken(token: JWT) {
   try {
@@ -160,23 +159,28 @@ export const authOptions = {
         token.refreshTokenExpires = (user as any).refreshTokenExpires;
         // Der primäre exp Wert des JWTs sollte mit der Access Token Ablaufzeit übereinstimmen
         token.exp = Math.floor((token.accessTokenExpires as number) / 1000);
-        return token;
       }
 
       // Wenn der Access Token abgelaufen ist, versuche ihn zu aktualisieren
       // Die JWT-Bibliothek prüft den exp-Wert automatisch.
       // Wir müssen hier nur den Refresh-Prozess starten, wenn der Token abgelaufen ist.
       // Hier keine manuelle Prüfung des Ablaufdatums
-      if (isImmediateCheckEnabled) {
+      if (process.env.IMMEDIATE_SESSION_CHECK_MODE === 'true') {
         const isTokenValid = await checkRefreshTokenInDb(token.id as string, token.refreshToken as string);
-        if (isTokenValid) {
-        // Access Token ist noch gültig, gib den Token unverändert zurück
-        return token;
-        }
-      }else {
+        console.log("Immediate session check mode:", isTokenValid ? "valid" : "invalid");
+        if (!isTokenValid) {
+            throw new Error("InvalidSessionError");
+          // NEU: Wenn der Refresh-Token in der DB ungültig ist, Session sofort beenden.
+          console.error("Immediate session check failed: Refresh token in DB is invalid or revoked.");
+          //return { 
+          //  ...token, 
+          //  error: "InvalidSessionError" as const, // Fehler setzen und Token zurückgeben
+          //  accessToken: undefined,
+          //};
+        }//
+    }
         if (!token.accessTokenExpires || Date.now() < token.accessTokenExpires) {
             return token; // Access Token ist noch gültig, gib den Token unverändert zurück
-        }
       }
     // Wenn wir hier ankommen, ist der Access Token abgelaufen
       console.log("Access Token expired, attempting to refresh...");

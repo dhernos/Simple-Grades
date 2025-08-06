@@ -1,6 +1,5 @@
 "use client"
 
-import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { GradesFormOverlay } from "@/components/GradesFormOverlay"
 import { GradesTable } from "@/components/GradesTable"
@@ -8,21 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export default function GradesPage() {
-  const { status } = useSession()
   const [refreshKey, setRefreshKey] = useState(0);
-
   const handleGradeAdded = () => {
     // Schlüssel aktualisieren, um die Tabelle neu zu laden
     setRefreshKey(prevKey => prevKey + 1);
   };
-
-  if (status === "loading") {
-    return <div className="flex min-h-screen items-center justify-center"></div>
-  }
-
-  if (status !== "authenticated") {
-    return <div className="flex min-h-screen items-center justify-center text-red-500">Bitte melden Sie sich an, um diese Seite zu sehen.</div>
-  }
 
   return (
     <div className="flex min-h-screen flex-col items-center p-8 bg-gray-100">
