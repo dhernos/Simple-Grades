@@ -1,29 +1,38 @@
-// app/(protected)/layout.tsx
-'use client';
+// src/app/dashboard/layout.tsx
 
-import { redirect, usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { ReactNode } from 'react';
+"use client";
 
-type ProtectedLayoutProps = {
-  children: ReactNode;
-};
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import LoadingPage from '@/components/loading-page'; // Eine einfache Lade-Komponente
 
-export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  const { status } = useSession();
-  const pathname = usePathname();
+export default function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { status, data: session } = useSession();
+  const router = useRouter();
 
-  // If the session is still loading, show a loading state
-  if (status === 'loading') {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  useEffect(() => {
+    // Wenn die Session ungültig wird, leiten wir um
+    if (status === "unauthenticated" || session?.error) {
+      console.log("ProtectedLayout: Session invalid, redirecting.");
+      router.push("/logout");
+    }
+  }, [status, session?.error, router]);
+
+  // Zeige eine Lade-Seite, solange der Status noch nicht geklärt ist
+  if (status === "loading") {
+    return <LoadingPage />;
   }
 
-  // If the user is not authenticated, redirect them to the login page
-  if (status === 'unauthenticated') {
-    const callbackUrl = encodeURIComponent(pathname);
-    return redirect(`/login?callbackUrl=${callbackUrl}`);
+  // Render die Seite nur, wenn der User authentifiziert ist
+  if (status === "authenticated") {
+    return <>{children}</>;
   }
 
-  // If the user is authenticated, render the children (the page content)
-  return <>{children}</>;
+  // Standard-Fall, falls etwas nicht stimmt (wird selten erreicht)
+  return null;
 }

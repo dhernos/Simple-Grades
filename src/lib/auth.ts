@@ -1,4 +1,5 @@
 // src/auth.ts
+
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -6,76 +7,21 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { Adapter } from "next-auth/adapters";
 import type { JWT } from "next-auth/jwt";
-import type { SessionStrategy } from "next-auth";
+import { randomUUID } from "crypto";
+import redis from "@/lib/redis"; // Importiere den Redis-Client
 
 const prisma = new PrismaClient();
 
-async function refreshAccessToken(token: JWT) {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: token.id as string },
-      select: {
-        id: true,
-        refreshToken: true,
-        refreshTokenExpires: true,
-      },
-    });
-
-    if (!user || !user.refreshToken || user.refreshToken !== token.refreshToken || !user.refreshTokenExpires) {
-      console.error("RefreshAccessTokenError: Refresh Token not found, mismatched, or expires missing for user:", token.id);
-      return { ...token, error: "RefreshAccessTokenError" as const };
-    }
-
-    if (Date.now() > user.refreshTokenExpires.getTime()) {
-      console.error("RefreshAccessTokenError: Refresh Token has expired for user:", token.id);
-      
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          refreshToken: null,
-          refreshTokenExpires: null,
-        },
-      });
-      return { ...token, error: "RefreshAccessTokenError" as const };
-    }
-
-    const newAccessToken = `access_token_for_${user.id}_${Date.now()}`;
-    const newAccessTokenExpiresIn = 3600;
-    const newAccessTokenExpires = Date.now() + newAccessTokenExpiresIn * 1000;
-
-    const newRefreshToken = `refresh_token_for_${user.id}_${Date.now()}`;
-    const newRefreshTokenExpires = user.refreshTokenExpires;
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        refreshToken: newRefreshToken,
-        refreshTokenExpires: newRefreshTokenExpires,
-      },
-    });
-
-    console.log("Access Token refreshed for user:", token.id);
-
-    return {
-      ...token,
-      accessToken: newAccessToken,
-      accessTokenExpires: newAccessTokenExpires,
-      refreshToken: newRefreshToken, // Den neuen Refresh Token zum Token hinzufügen
-      refreshTokenExpires: newRefreshTokenExpires.getTime(),
-      error: undefined,
-    };
-  } catch (error) {
-    console.error("Error refreshing access token:", error);
-    return { ...token, error: "RefreshAccessTokenError" as const };
-  }
+// Funktion zum Überprüfen der Session in Redis
+async function checkSessionInRedis(sessionId: string) {
+  // Holt alle Felder des Hashs
+  const session = await redis.hgetall(`session:${sessionId}`);
+  return session;
 }
 
-async function checkRefreshTokenInDb(userId: string, tokenRefreshToken: string) {
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { refreshToken: true },
-    });
-    return user && user.refreshToken === tokenRefreshToken;
+// Funktion zum Löschen der Session aus Redis
+async function invalidateSession(sessionId: string) {
+  await redis.del(`session:${sessionId}`);
 }
 
 export const authOptions = {
@@ -86,7 +32,7 @@ export const authOptions = {
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
-        rememberMe: { label: "Remember Me", type: "checkbox" }
+        rememberMe: { label: "Remember Me", type: "checkbox" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -94,7 +40,7 @@ export const authOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         if (!user || !user.password) {
@@ -106,99 +52,79 @@ export const authOptions = {
         if (!isValidPassword) {
           throw new Error("Ungültige Anmeldeinformationen.");
         }
-
-        const initialAccessToken = `access_token_for_${user.id}_${Date.now()}`;
-        const accessTokenExpiresIn = 3600;
-        const initialAccessTokenExpires = Date.now() + accessTokenExpiresIn * 1000;
-
-        let refreshTokenExpiresInSeconds: number;
-        if (credentials.rememberMe === "true") {
-          refreshTokenExpiresInSeconds = 7 * 24 * 60 * 60;
-          console.log("Remember Me checked: Refresh Token for 1 week.");
-        } else {
-          refreshTokenExpiresInSeconds = 7 * 60 * 60;
-          console.log("Remember Me unchecked: Refresh Token for 7 hours.");
-        }
-        const initialRefreshToken = `refresh_token_for_${user.id}_${Date.now()}`;
-        const initialRefreshTokenExpires = new Date(Date.now() + refreshTokenExpiresInSeconds * 1000);
-
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            refreshToken: initialRefreshToken,
-            refreshTokenExpires: initialRefreshTokenExpires,
-          },
+        
+        // NEU: Session in Redis erstellen
+        const sessionId = randomUUID();
+        const now = Date.now();
+        const maxAgeInSeconds = credentials.rememberMe === "true" ? 7 * 24 * 60 * 60 : 7 * 60 * 60; // 7 Tage oder 7 Stunden
+        const sessionExpiresAt = now + maxAgeInSeconds * 1000;
+        
+        // Speichere die Session-Daten in Redis als Hash
+        await redis.hmset(`session:${sessionId}`, {
+          userId: user.id,
+          expires: sessionExpiresAt.toString(),
+          loginTime: now.toString(),
+          role: user.role,
+          // Optional: Client-IP, User-Agent etc. hier speichern
         });
 
+        // Setze die Ablaufzeit (TTL) für den Redis-Schlüssel
+        await redis.expire(`session:${sessionId}`, maxAgeInSeconds);
+
+        // Gib ein reduziertes User-Objekt zurück, das nur die sessionId enthält
         return {
           id: user.id,
           name: user.name,
           email: user.email,
           image: user.image,
           role: user.role,
-          accessToken: initialAccessToken,
-          accessTokenExpires: initialAccessTokenExpires,
-          refreshToken: initialRefreshToken,
-          refreshTokenExpires: initialRefreshTokenExpires.getTime(),
+          sessionId: sessionId, // Der wichtige Teil für das JWT
         };
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
-    maxAge: 30 * 24 * 60 * 60,
+    // maxAge wird durch die Redis TTL gesteuert, hier nur als Fallback
+    maxAge: 7 * 24 * 60 * 60,
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
+      // Beim ersten Login (user ist vorhanden)
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.accessToken = (user as any).accessToken;
-        token.accessTokenExpires = (user as any).accessTokenExpires;
-        token.refreshToken = (user as any).refreshToken;
-        token.refreshTokenExpires = (user as any).refreshTokenExpires;
-        // Der primäre exp Wert des JWTs sollte mit der Access Token Ablaufzeit übereinstimmen
-        token.exp = Math.floor((token.accessTokenExpires as number) / 1000);
+        // NEU: Speichere nur die sessionId im JWT
+        token.sessionId = (user as any).sessionId;
       }
 
-      // Wenn der Access Token abgelaufen ist, versuche ihn zu aktualisieren
-      // Die JWT-Bibliothek prüft den exp-Wert automatisch.
-      // Wir müssen hier nur den Refresh-Prozess starten, wenn der Token abgelaufen ist.
-      // Hier keine manuelle Prüfung des Ablaufdatums
-      if (process.env.IMMEDIATE_SESSION_CHECK_MODE === 'true') {
-        const isTokenValid = await checkRefreshTokenInDb(token.id as string, token.refreshToken as string);
-        console.log("Immediate session check mode:", isTokenValid ? "valid" : "invalid");
-        if (!isTokenValid) {
-            throw new Error("InvalidSessionError");
-          // NEU: Wenn der Refresh-Token in der DB ungültig ist, Session sofort beenden.
-          console.error("Immediate session check failed: Refresh token in DB is invalid or revoked.");
-          //return { 
-          //  ...token, 
-          //  error: "InvalidSessionError" as const, // Fehler setzen und Token zurückgeben
-          //  accessToken: undefined,
-          //};
-        }//
-    }
-        if (!token.accessTokenExpires || Date.now() < token.accessTokenExpires) {
-            return token; // Access Token ist noch gültig, gib den Token unverändert zurück
-      }
-    // Wenn wir hier ankommen, ist der Access Token abgelaufen
-      console.log("Access Token expired, attempting to refresh...");
-      const refreshedToken = await refreshAccessToken(token);
+      // Bei jeder folgenden Anfrage, validiere die Session in Redis
+      if (token.sessionId) {
+        const sessionData = await checkSessionInRedis(token.sessionId as string);
 
-      if (refreshedToken.error) {
-        // Wenn ein Fehler beim Refresh auftritt, wird das Token zurückgegeben und
-        // die Session im `session`-Callback beendet.
-        return refreshedToken;
+        if (sessionData && sessionData.userId === token.id) {
+          // Session ist gültig. Aktualisiere Token mit den Session-Daten
+          token.id = sessionData.userId;
+          token.role = sessionData.role;
+          // Setze die Ablaufzeit des JWTs basierend auf der Redis-Session
+          token.exp = Math.floor(parseInt(sessionData.expires) / 1000);
+          return token;
+        } else {
+          // Session in Redis nicht gefunden oder UserId stimmt nicht überein
+          console.warn("JWT callback: Session not found or mismatched in Redis. Invalidating token.");
+          // Erzwinge Logout, indem ein Fehler in den Token geschrieben wird
+          return { ...token, error: "InvalidSessionError" as const };
+        }
       }
 
-      // Aktualisiere den exp Wert des Tokens mit der neuen Access Token Ablaufzeit
-      refreshedToken.exp = Math.floor((refreshedToken.accessTokenExpires as number) / 1000);
-      return refreshedToken;
+      // Sollte dieser Zustand erreicht werden, ist der Token ungültig
+      return { ...token, error: "InvalidSessionError" as const };
     },
 
     async session({ session, token }) {
       if (token.error) {
+        // Der JWT-Callback hat einen Fehler gesetzt, z.B. weil die Redis-Session ungültig ist.
+        // Die Session wird hiermit beendet.
         return {
           ...session,
           user: null,
@@ -206,28 +132,23 @@ export const authOptions = {
           error: token.error as string,
         };
       }
-
+      
+      // Übertrage die Daten vom Token zur Session
       if (token?.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
       }
 
-      session.accessToken = token.accessToken as string;
-      session.accessTokenExpires = token.accessTokenExpires as number;
-      session.refreshToken = token.refreshToken as string;
-      session.refreshTokenExpires = token.refreshTokenExpires as number;
-      session.error = token.error;
-
-      if (token.accessTokenExpires) {
-        session.expires = new Date(token.accessTokenExpires).toISOString();
-      } else {
-        session.expires = new Date(Date.now() + 60 * 1000).toISOString();
+      // Setze das Ablaufdatum der Session basierend auf dem JWT
+      if (token.exp) {
+        session.expires = new Date(token.exp * 1000).toISOString();
       }
+
       return session;
-    }
+    },
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
