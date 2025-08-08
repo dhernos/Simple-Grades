@@ -76,45 +76,45 @@ export default function AdminSessionsPage() {
     return <div className="p-8 text-red-500">Error: {error}</div>;
   }
 
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Active Sessions</h1>
-      <p className="mb-4">This page displays all active sessions stored in Redis.</p>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Session ID</th>
-              <th className="py-2 px-4 border-b">User ID</th>
-              <th className="py-2 px-4 border-b">Role</th>
-              <th className="py-2 px-4 border-b">Login Time</th>
-              <th className="py-2 px-4 border-b">Expires At</th>
-              <th className="py-2 px-4 border-b">Time Left (s)</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions.map((s) => (
-              <tr key={s.sessionId} className="hover:bg-gray-100">
-                <td className="py-2 px-4 border-b text-sm break-all">{s.sessionId}</td>
-                <td className="py-2 px-4 border-b text-sm break-all">{s.userId}</td>
-                <td className="py-2 px-4 border-b text-sm">{s.role}</td>
-                <td className="py-2 px-4 border-b text-sm">{new Date(parseInt(s.loginTime)).toLocaleString()}</td>
-                <td className="py-2 px-4 border-b text-sm">{new Date(parseInt(s.expires)).toLocaleString()}</td>
-                <td className="py-2 px-4 border-b text-sm">{s.ttlInSeconds > 0 ? s.ttlInSeconds : "Expired"}</td>
-                <td className="py-2 px-4 border-b text-center">
-                  <button
-                    onClick={() => handleDeleteSession(s.sessionId)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-md text-xs hover:bg-red-600 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+    return (
+    <div className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Active Sessions</h1>
+        <p className="mb-4">This page displays all active sessions stored in Redis.</p>
+        <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200">
+            <thead>
+            <tr>
+                <th className="py-2 px-4 border-b">Session ID</th>
+                <th className="py-2 px-4 border-b">User ID</th>
+                <th className="py-2 px-4 border-b">Role</th>
+                <th className="py-2 px-4 border-b">Login Time</th>
+                <th className="py-2 px-4 border-b">Expires At</th>
+                <th className="py-2 px-4 border-b">Time Left (s)</th>
+                <th className="py-2 px-4 border-b">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {sessions.map((s) => (
+                <tr key={s.sessionId} className="hover:bg-gray-100">
+                <td className="py-2 px-4 border-b text-sm break-all">{s.sessionId}</td>
+                <td className="py-2 px-4 border-b text-sm break-all">{s.userId}</td>
+                <td className="py-2 px-4 border-b text-sm">{s.role}</td>
+                <td className="py-2 px-4 border-b text-sm">{new Date(parseInt(s.loginTime)).toLocaleString()}</td>
+                <td className="py-2 px-4 border-b text-sm">{new Date(parseInt(s.expires)).toLocaleString()}</td>
+                <td className="py-2 px-4 border-b text-sm">{s.ttlInSeconds > 0 ? s.ttlInSeconds : "Expired"}</td>
+                <td className="py-2 px-4 border-b text-center">
+                    <button
+                    onClick={() => handleDeleteSession(s.sessionId, s.userId)}
+                    className="bg-red-500 text-white px-3 py-1 rounded-md text-xs hover:bg-red-600 transition-colors"
+                    >
+                    Logout
+                    </button>
+                </td>
+                </tr>
+            ))}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    );
 }

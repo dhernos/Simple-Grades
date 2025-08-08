@@ -26,7 +26,6 @@ model User {
   passwordResetExpires  DateTime?
 
   accounts          Account[]
-  sessions          Session[]
   Authenticator Authenticator[] // Optional for WebAuthn support
   role              Role            @default(USER)
   noten             Noten[]
