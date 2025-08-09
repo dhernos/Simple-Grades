@@ -20,7 +20,7 @@ export default function GradesPage() {
           <h1 className="text-4xl font-bold">Notenverwaltung</h1>
           <Dialog>
             <DialogTrigger asChild>
-              <Button>Note hinzufügen</Button>
+              <Button className="cursor-pointer">Note hinzufügen</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>

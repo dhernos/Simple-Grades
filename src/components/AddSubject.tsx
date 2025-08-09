@@ -68,7 +68,7 @@ export function AddSubject({ onSubjectAdded }: { onSubjectAdded?: () => void }) 
             required
           />
         </div>
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full cursor-pointer">
           Fach hinzufügen
         </Button>
       </form>

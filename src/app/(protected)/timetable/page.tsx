@@ -73,7 +73,7 @@ export default function TimetablePage() {
           {editMode && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button disabled={isSaving}>Fach hinzufügen</Button>
+                <Button disabled={isSaving} className="cursor-pointer">Fach hinzufügen</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -83,7 +83,7 @@ export default function TimetablePage() {
               </DialogContent>
             </Dialog>
           )}
-          <Button onClick={toggleEditMode} disabled={isSaving}>
+          <Button onClick={toggleEditMode} disabled={isSaving} className="cursor-pointer">
             {isSaving ? "Speichern..." : editMode ? "Bearbeitung beenden" : "Bearbeiten"}
           </Button>
         </div>

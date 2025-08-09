@@ -15,7 +15,7 @@ export function ItemDropdown({ type, onEdit, onDeleteGradesOnly, onDeleteSubject
       <Button 
         variant="ghost" 
         size="sm" 
-        className="justify-start px-2 py-1 h-auto text-sm"
+        className="justify-start px-2 py-1 h-auto text-sm cursor-pointer"
         onClick={(e) => { e.stopPropagation(); onEdit(); }}
       >
         Bearbeiten
@@ -27,7 +27,7 @@ export function ItemDropdown({ type, onEdit, onDeleteGradesOnly, onDeleteSubject
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); onDeleteGradesOnly(); }}
           >
             Zeile löschen
@@ -35,7 +35,7 @@ export function ItemDropdown({ type, onEdit, onDeleteGradesOnly, onDeleteSubject
           <Button 
             variant="ghost" 
             size="sm" 
-            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+            className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600 cursor-pointer"
             onClick={(e) => { e.stopPropagation(); onDeleteSubject(); }}
           >
             Ganzes Fach löschen
@@ -48,7 +48,7 @@ export function ItemDropdown({ type, onEdit, onDeleteGradesOnly, onDeleteSubject
         <Button 
           variant="ghost" 
           size="sm" 
-          className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600"
+          className="justify-start px-2 py-1 h-auto text-sm text-red-500 hover:text-red-600 cursor-pointer"
           onClick={(e) => { e.stopPropagation(); onDeleteGrade(); }}
         >
           Note löschen

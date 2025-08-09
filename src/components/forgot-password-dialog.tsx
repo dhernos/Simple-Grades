@@ -73,10 +73,10 @@ export function ForgotPasswordDialog({ isOpen, onClose }: ForgotPasswordDialogPr
           {message && <p className="text-center text-green-600">{message}</p>}
           {error && <p className="text-center text-red-500">{error}</p>}
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={loading} type="button">
+            <Button variant="outline" onClick={onClose} disabled={loading} type="button" className="cursor-pointer">
               Abbrechen
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="cursor-pointer">
               {loading ? "Senden..." : "Senden"}
             </Button>
           </DialogFooter>

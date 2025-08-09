@@ -129,13 +129,13 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px] text-left">Zeit</TableHead>
+            <TableHead className="w-[60px] text-left">Zeit</TableHead>
             {fixedDays.map((day, index) => (
               <TableHead key={index} className="w-[120px] text-center">
                 {day}
               </TableHead>
             ))}
-            {editMode && <TableHead className="w-[100px] text-center">Aktion</TableHead>}
+            {editMode && <TableHead className="w-[90px] text-center">Aktion</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -156,13 +156,13 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
                       onValueChange={(value) => updateCellSubject(rowIndex, cellIndex, value)}
                       value={cell.subjectId || "clear-selection"}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full cursor-pointer">
                         <SelectValue placeholder="Fach wählen" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="clear-selection">Fach wählen</SelectItem>
+                        <SelectItem value="clear-selection" className="cursor-pointer">Fach wählen</SelectItem>
                         {subjects.map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id}>
+                          <SelectItem key={subject.id} value={subject.id} className="cursor-pointer">
                             {subject.name}
                           </SelectItem>
                         ))}
@@ -178,6 +178,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
                   <Button
                     variant="destructive"
                     onClick={() => removeRow(row.id)}
+                    className="cursor-pointer"
                   >
                     Löschen
                   </Button>
@@ -189,7 +190,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
             <TableRow>
               <TableCell className="font-medium">
                 <Input
-                  placeholder="Neue Zeilenbezeichnung"
+                  placeholder="Stunde"
                   value={newRowLabel}
                   onChange={(e) => setNewRowLabel(e.target.value)}
                 />
@@ -198,7 +199,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
                 <TableCell key={`placeholder-${index}`}></TableCell>
               ))}
               <TableCell className="text-center">
-                <Button onClick={addRow}>Zeile hinzufügen</Button>
+                <Button onClick={addRow} className="cursor-pointer">Zeile hinzufügen</Button>
               </TableCell>
             </TableRow>
           )}

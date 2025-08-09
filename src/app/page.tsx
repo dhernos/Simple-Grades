@@ -1,47 +1,60 @@
 // src/app/page.tsx
-"use client"
+"use client";
 
-import { useSession, signOut } from "next-auth/react"
-import Link from "next/link"
-import { useEffect } from "react"; // useEffect für potenzielle Fehlerbehandlung
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import SessionTTL from "@/components/SessionTTL";
+
+// Definiere einen Typ für die zusätzlichen Session-Daten, die wir vom Backend holen
+interface SessionInfo {
+  expires: string;
+  loginTime: string;
+  role: string;
+  ttlInSeconds: number;
+}
 
 export default function Home() {
-  const { data: session, status, update } = useSession(); // `update` Funktion vom Hook
+  const { data: session, status } = useSession();
+  const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+  const [loadingSessionInfo, setLoadingSessionInfo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Effekt, um auf Session-Fehler zu reagieren
+  // Handle Session-Fehler, die der JWT-Callback setzen könnte
   useEffect(() => {
-    if (session?.error === "RefreshAccessTokenError") {
-      console.error("Refresh Token Fehler: Session abgelaufen oder ungültig.");
-      // Optional: Automatische Abmeldung oder Weiterleitung zur Login-Seite
-      // signOut({ callbackUrl: "/login?error=RefreshAccessTokenError" });
+    if (session?.error) {
+      setError(
+        "Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an."
+      );
+      // Optionale, automatische Abmeldung
+      // signOut({ callbackUrl: "/login?error=InvalidSessionError" });
+    } else {
+      setError(null);
     }
-  }, [session]); // Abhängigkeit von der Session
+  }, [session]);
+
+  // Funktion zum Abrufen der Session-Details von deiner neuen API
+  // Dies würde die tatsächlichen TTLs aus Redis holen
+  const fetchSessionDetails = async () => {
+    setLoadingSessionInfo(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/sessions/current");
+      if (!response.ok) {
+        throw new Error("Fehler beim Abrufen der Session-Details.");
+      }
+      const data = await response.json();
+      setSessionInfo(data);
+    } catch (err) {
+      console.error(err);
+      setError("Konnte Session-Details nicht laden.");
+    } finally {
+      setLoadingSessionInfo(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: "/login" });
-  };
-
-  // Funktion zum Aktualisieren der Session mit `rememberMe`
-  // Diese Funktion sendet den 'rememberMe'-Wert an den 'session'-Callback
-  // in [...nextauth]/route.ts, der dann wiederum den 'jwt'-Callback triggert.
-  // Es beeinflusst NICHT direkt die Refresh Token Dauer nach dem Login.
-  // Die Dauer des Refresh Tokens wird beim LOGIN gesetzt und in der DB gespeichert.
-  // Diese 'update'-Funktion kann dazu dienen, andere Session-Daten zu aktualisieren,
-  // aber nicht die bereits in der DB gespeicherte Refresh-Token-Dauer.
-  // Um die Refresh Token Dauer zu ändern, müsste sich der Benutzer neu anmelden.
-  // Ich belasse die Buttons hier zur Demonstration der 'update'-Funktionalität,
-  // falls du andere Session-Daten darüber aktualisieren möchtest.
-  // Für das Refresh Token ist die rememberMe-Einstellung beim Anmelden entscheidend.
-  const handleRememberMeUpdate = async (value: boolean) => {
-    // Die 'update' Funktion kann verwendet werden, um Daten *innerhalb* der Session zu aktualisieren,
-    // die dann über den Session-Callback zurück in den JWT gelangen.
-    // Dies beeinflusst NICHT die Lebensdauer des Refresh Tokens in der Datenbank,
-    // die beim Login gesetzt wird. Die Session-MaxAge im Cookie wird durch diese Updates beeinflusst.
-    await update({ rememberMe: value });
-    console.log(`Session 'rememberMe' status updated to: ${value}`);
-    // Ein erneuter Aufruf von useSession() oder eine manuelle Aktualisierung ist nötig,
-    // um die Änderungen in der UI zu sehen, wenn sie vom Server zurückkommen.
-    // Ein update() call triggert oft eine Revalidierung der Session.
   };
 
   if (status === "loading") {
@@ -60,76 +73,52 @@ export default function Home() {
               <span className="ml-2 text-sm text-gray-500">({session.user.role})</span>
             )}
           </p>
+
           <p className="mb-4 text-lg">
             Session gültig bis:{" "}
             <span className="font-semibold">
-              {session.expires ? new Date(session.expires).toLocaleString() : "Unbekannt"}
+              {session.expires
+                ? new Date(session.expires).toLocaleString()
+                : "Unbekannt"}
             </span>
           </p>
 
-          <p className="mb-2 text-md">
-            **Access Token:**{" "}
-            <span className="font-mono text-sm break-all">
-              {session.accessToken ? session.accessToken.substring(0, 30) + "..." : "Nicht verfügbar"}
-            </span>
-          </p>
-          <p className="mb-2 text-md">
-            **Access Token läuft ab:**{" "}
-            <span className="font-semibold">
-              {session.accessTokenExpires
-                ? new Date(session.accessTokenExpires).toLocaleString()
-                : "N/A"}
-            </span>
-          </p>
-          <p className="mb-2 text-md">
-            **Refresh Token:**{" "}
-            <span className="font-mono text-sm break-all">
-              {session.refreshToken ? session.refreshToken.substring(0, 30) + "..." : "Nicht verfügbar"}
-            </span>
-          </p>
-          <p className="mb-2 text-md">
-            **Refresh Token läuft ab:**{" "}
-            <span className="font-mono text-sm break-all">
-              {session.refreshTokenExpires
-                ? new Date(session.refreshTokenExpires).toLocaleString()
-                : "N/A"}
-            </span>
-          </p>
-
-          {session.error && (
+          {/* Anzeigen des Fehlers, wenn vorhanden */}
+          {error && (
             <p className="mb-4 mt-4 text-center text-red-600 font-bold">
-              Fehler: {session.error === "RefreshAccessTokenError" ? "Ihre Sitzung ist abgelaufen oder ungültig. Bitte melden Sie sich erneut an." : session.error}
+              Fehler: {error}
             </p>
           )}
 
-          {/* Hinweis: Diese Buttons ändern NICHT die Lebensdauer des Refresh Tokens in der DB.
-              Sie zeigen die Nutzung der 'update' Funktion, um Session-Daten zu beeinflussen,
-              was das Cookie-MaxAge der NextAuth Session beeinflussen könnte,
-              aber nicht die Langlebigkeit des Refresh Tokens selbst.
-              Die rememberMe-Einstellung wird beim LOGIN festgelegt.
-          */}
-          <div className="mb-4 mt-6">
-             <p className="mb-2 text-sm text-gray-600">
-               *Hinweis: Diese Buttons aktualisieren den 'rememberMe'-Status im Session-Cookie und JWT,
-               beeinflussen aber nicht die bereits festgelegte Lebensdauer des Refresh Tokens in der Datenbank.
-               Dafür ist die "Angemeldet bleiben"-Checkbox beim Login zuständig.*
-            </p>
+          {/* Buttons zum Abrufen und Anzeigen der Redis-Session-Informationen */}
+          <div className="mt-6">
+            <h2 className="mb-2 text-xl font-bold">Redis Session-Details</h2>
             <button
-              onClick={() => handleRememberMeUpdate(true)}
-              className="mr-2 rounded-md bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600 disabled:opacity-50"
-              disabled={status !== "authenticated"}>Session auf "Angemeldet bleiben" setzen</button>
-            <button
-              onClick={() => handleRememberMeUpdate(false)}
-              className="rounded-md bg-yellow-500 px-4 py-2 font-bold text-white hover:bg-yellow-600 disabled:opacity-50"
-              disabled={status !== "authenticated"}
+              onClick={fetchSessionDetails}
+              disabled={loadingSessionInfo}
+              className="rounded-md bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
             >
-              Session auf "Nur diese Sitzung" setzen
+              {loadingSessionInfo ? "Lade..." : "Details der Redis-Session anzeigen"}
             </button>
+
+            {sessionInfo && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-md text-left border border-gray-200">
+                <p>
+                  <span className="font-semibold">Login Zeit:</span>{" "}
+                  {new Date(parseInt(sessionInfo.loginTime)).toLocaleString()}
+                </p>
+                <p>
+                  <span className="font-semibold">Ablaufdatum:</span>{" "}
+                  {new Date(parseInt(sessionInfo.expires)).toLocaleString()}
+                </p>
+                  <SessionTTL ttlInSeconds={sessionInfo.ttlInSeconds} />
+              </div>
+            )}
           </div>
 
           <button
             onClick={handleSignOut}
-            className="mt-6 rounded-md bg-red-500 px-6 py-3 font-bold text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+            className="mt-6 rounded-md bg-red-500 px-6 py-3 font-bold text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 cursor-pointer"
           >
             Abmelden
           </button>
@@ -138,14 +127,14 @@ export default function Home() {
         <div className="text-center">
           <p className="mb-4 text-lg">Sie sind nicht angemeldet.</p>
           <Link
-            href="/login" // Link zur Login-Seite
-            className="rounded-md bg-blue-500 px-6 py-3 font-bold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            href="/login"
+            className="rounded-md bg-blue-500 px-6 py-3 font-bold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer"
           >
             Anmelden
           </Link>
           <Link
-            href="/signup" // Link zur Registrierungsseite
-            className="ml-4 rounded-md bg-purple-500 px-6 py-3 font-bold text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+            href="/signup"
+            className="ml-4 rounded-md bg-purple-500 px-6 py-3 font-bold text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 cursor-pointer"
           >
             Registrieren
           </Link>

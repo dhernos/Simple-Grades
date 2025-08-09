@@ -38,8 +38,8 @@ export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType, isDeleting
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Abbrechen</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-red-500 hover:bg-red-600">
+          <AlertDialogCancel onClick={onCancel} className="cursor-pointer">Abbrechen</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} className="bg-red-500 hover:bg-red-600 cursor-pointer">
             {isSubject ? (isDeletingGradesOnly ? "Zeile löschen" : "Fach löschen") : "Note löschen"}
           </AlertDialogAction>
         </AlertDialogFooter>

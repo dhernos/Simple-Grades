@@ -115,20 +115,20 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
       
       <Tabs defaultValue="add-grade" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="add-grade">Note hinzufügen</TabsTrigger>
-          <TabsTrigger value="add-subject">Fach hinzufügen</TabsTrigger>
+          <TabsTrigger value="add-grade" className="cursor-pointer">Note hinzufügen</TabsTrigger>
+          <TabsTrigger value="add-subject" className="cursor-pointer">Fach hinzufügen</TabsTrigger>
         </TabsList>
         <TabsContent value="add-grade" className="mt-4">
           <form onSubmit={handleSaveGrade} className="space-y-4">
             <div>
               <Label htmlFor="subject-select" className="mb-1">Fach:</Label>
               <Select onValueChange={setSelectedSubjectId} value={selectedSubjectId} required>
-                <SelectTrigger id="subject-select" className="w-full">
+                <SelectTrigger id="subject-select" className="w-full cursor-pointer">
                   <SelectValue placeholder="Wählen Sie ein Fach" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>{subject.name}</SelectItem>
+                    <SelectItem key={subject.id} value={subject.id} className="cursor-pointer">{subject.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -158,7 +158,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full cursor-pointer">
               Note speichern
             </Button>
           </form>
@@ -176,7 +176,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
                 required
               />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full cursor-pointer">
               Fach hinzufügen
             </Button>
           </form>

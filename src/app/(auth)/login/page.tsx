@@ -104,7 +104,7 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   id="rememberMe"
-                  className="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                  className="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   disabled={loading}

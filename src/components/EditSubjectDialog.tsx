@@ -50,8 +50,8 @@ export function EditSubjectDialog({ isOpen, onClose, onSave, subjectId, initialN
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Abbrechen</Button>
-          <Button onClick={handleSave}>Speichern</Button>
+          <Button variant="outline" onClick={onClose} className="cursor-pointer">Abbrechen</Button>
+          <Button onClick={handleSave} className="cursor-pointer">Speichern</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

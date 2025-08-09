@@ -1,5 +1,3 @@
-// src/components/GradesTable.tsx
-
 "use client";
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@/components/ui/table";
 import { useEffect, useState, useRef } from "react";
@@ -58,6 +56,7 @@ export function GradesTable() {
   const [editingGrade, setEditingGrade] = useState<{ id: string; note: number; jahr: number } | null>(null);
   const [isEditSubjectDialogOpen, setIsEditSubjectDialogOpen] = useState<boolean>(false);
   const [editingSubject, setEditingSubject] = useState<SubjectToEdit | null>(null);
+  const [itemTypeToDelete, setItemTypeToDelete] = useState<'subject' | 'grade' | null>(null); // Neuer State
   const dropdownRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -73,20 +72,17 @@ export function GradesTable() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      // Wenn das Dropdown offen ist und der Klick nicht im Dropdown-Menü stattfand
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setSelectedItem(null);
       }
     }
     
-    // Event-Listener zum Dokument hinzufügen
     document.addEventListener("mousedown", handleClickOutside);
     
-    // Cleanup-Funktion, um den Event-Listener zu entfernen, wenn die Komponente unmountet wird
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownRef]); // Wird nur einmal beim Mounten ausgeführt
+  }, [dropdownRef]);
 
   async function fetchData() {
     try {
@@ -172,23 +168,25 @@ export function GradesTable() {
   };
 
   const handleDeleteItem = async () => {
-    if (!selectedItem) return;
+    if (!selectedItem) return; // Hier ist selectedItem noch null, die Logik wird über itemTypeToDelete gesteuert
     try {
       let endpoint: string;
       let body: string | null = null;
       let headers: HeadersInit = {};
 
-      if (selectedItem.type === 'subject') {
+      if (itemTypeToDelete === 'subject') {
         if (isDeletingGradesOnly) {
+          // Annahme: Wenn gradesOnly, dann lösche Noten, aber nicht das Fach selbst
           endpoint = `/api/grades/bySubjectAndYear`;
-          body = JSON.stringify({ subjectId: selectedItem.id, year: selectedItem.jahr });
+          const subjectToDelete = findSubjectById(selectedItem?.id);
+          body = JSON.stringify({ subjectId: selectedItem?.id, year: selectedItem?.jahr });
           headers = { 'Content-Type': 'application/json' };
         } else {
-          endpoint = `/api/subjects/${selectedItem.id}`;
+          endpoint = `/api/subjects/${selectedItem?.id}`;
           body = null;
         }
-      } else if (selectedItem.type === 'grade') {
-        endpoint = `/api/grades/${selectedItem.id}`;
+      } else if (itemTypeToDelete === 'grade') {
+        endpoint = `/api/grades/${selectedItem?.id}`;
         body = null;
       } else {
         return;
@@ -210,12 +208,17 @@ export function GradesTable() {
       setSelectedItem(null);
       setIsDeleteDialogOpen(false);
       setIsDeletingGradesOnly(false);
+      setItemTypeToDelete(null); // State zurücksetzen
     }
   };
 
   const handleDeleteGrade = () => {
+    if (selectedItem) {
+      setItemTypeToDelete(selectedItem.type);
+    }
     setIsDeletingGradesOnly(false);
     setIsDeleteDialogOpen(true);
+    setSelectedItem(null);
   }
 
   const findGradeById = (id: string) => {
@@ -281,6 +284,8 @@ export function GradesTable() {
 
   const handleEditItem = () => {
     if (!selectedItem) return;
+    setSelectedItem(null);
+    
     if (selectedItem.type === 'grade') {
       const gradeToEdit = findGradeById(selectedItem.id);
       if (gradeToEdit) {
@@ -294,7 +299,6 @@ export function GradesTable() {
         setIsEditSubjectDialogOpen(true);
       }
     }
-    setSelectedItem(null);
   };
   
   useEffect(() => {
@@ -396,17 +400,20 @@ export function GradesTable() {
             left: selectedItem.x, 
             zIndex: 1000 
           }}
-          // Der Klick innerhalb des Dropdowns stoppt die Event-Propagation, um das Schließen zu verhindern
           onClick={(e) => e.stopPropagation()}
         >
           <ItemDropdown
             type={selectedItem.type}
             onEdit={handleEditItem}
             onDeleteGradesOnly={() => {
+              if (selectedItem) setItemTypeToDelete(selectedItem.type);
+              setSelectedItem(null);
               setIsDeletingGradesOnly(true);
               setIsDeleteDialogOpen(true);
             }}
             onDeleteSubject={() => {
+              if (selectedItem) setItemTypeToDelete(selectedItem.type);
+              setSelectedItem(null);
               setIsDeletingGradesOnly(false);
               setIsDeleteDialogOpen(true);
             }}
@@ -418,8 +425,11 @@ export function GradesTable() {
       <DeleteDialog
         isOpen={isDeleteDialogOpen}
         onConfirm={handleDeleteItem}
-        onCancel={() => setIsDeleteDialogOpen(false)}
-        itemType={selectedItem?.type || ''}
+        onCancel={() => {
+            setIsDeleteDialogOpen(false);
+            setItemTypeToDelete(null);
+        }}
+        itemType={itemTypeToDelete || ''}
         isDeletingGradesOnly={isDeletingGradesOnly}
       />
       {editingGrade && (
