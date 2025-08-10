@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { ForgotPasswordDialog } from "@/components/forgot-password-dialog"; 
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,16 +48,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md mx-auto p-4 space-y-4 bg-white shadow-lg rounded-md">
+    <div className="flex min-h-screen items-center justify-center">
+      <Card className="w-full max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
-          <CardDescription className="text-gray-600">Melde dich bei deinem Konto an</CardDescription>
+          <CardDescription>Melde dich bei deinem Konto an</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <ThemeToggle></ThemeToggle>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="email" className="mb-2 block text-sm font-bold">
                 E-Mail:
               </label>
               <Input
@@ -72,7 +74,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="password" className="mb-2 block text-sm font-bold">
                 Passwort:
               </label>
               <div className="relative">
@@ -109,7 +111,7 @@ export default function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   disabled={loading}
                 />
-                <label htmlFor="rememberMe" className="text-sm text-gray-700 cursor-pointer">
+                <label htmlFor="rememberMe" className="text-sm cursor-pointer">
                   Angemeldet bleiben
                 </label>
               </div>
@@ -133,7 +135,7 @@ export default function LoginPage() {
               {loading ? "Anmelden..." : "Anmelden"}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm">
             Noch kein Konto?{" "}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Jetzt registrieren

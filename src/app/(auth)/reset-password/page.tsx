@@ -107,18 +107,18 @@ export default function ResetPasswordPage() {
   const isFormValid = password.length > 0 && confirmPassword.length > 0 && password === confirmPassword && passwordStrength === 5;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md p-4 bg-white shadow-lg rounded-md">
+    <div className="flex min-h-screen items-center justify-center">
+      <Card className="w-full max-w-md p-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Passwort zurücksetzen</CardTitle>
-          <CardDescription className="text-gray-600">
+          <CardDescription>
             Gib dein neues Passwort ein
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="password" className="mb-2 block text-sm font-bold">
                 Neues Passwort:
               </label>
               <div className="relative">
@@ -147,11 +147,11 @@ export default function ResetPasswordPage() {
               
               {password.length > 0 && (
                 <div className="w-full mt-2">
-                  <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1">
+                  <div className="flex justify-between text-xs font-semibold mb-1">
                     <span>Passwortstärke</span>
                     <span>{passwordStrength === 5 ? "Stark" : "Schwach"}</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-full h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-300 rounded-full ${getStrengthColor(passwordStrength)}`}
                       style={{ width: getStrengthWidth(passwordStrength) }}
@@ -161,7 +161,7 @@ export default function ResetPasswordPage() {
               )}
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-bold">
                 Passwort bestätigen:
               </label>
               <div className="relative">

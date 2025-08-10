@@ -82,7 +82,7 @@ export default function AdminSessionsPage() {
         <h1 className="text-2xl font-bold mb-4">Active Sessions</h1>
         <p className="mb-4">This page displays all active sessions stored in Redis.</p>
         <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
+        <table className="min-w-full border">
             <thead>
             <tr>
                 <th className="py-2 px-4 border-b">Session ID</th>
@@ -96,7 +96,7 @@ export default function AdminSessionsPage() {
             </thead>
             <tbody>
             {sessions.map((s) => (
-                <tr key={s.sessionId} className="hover:bg-gray-100">
+                <tr key={s.sessionId}>
                 <td className="py-2 px-4 border-b text-sm break-all">{s.sessionId}</td>
                 <td className="py-2 px-4 border-b text-sm break-all">{s.userId}</td>
                 <td className="py-2 px-4 border-b text-sm">{s.role}</td>

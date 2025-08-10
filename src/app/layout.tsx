@@ -1,7 +1,9 @@
+// src/app/layout.tsx
+
 import "./globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { Providers } from "./providers" // Importiere Providers
+import { Providers } from "./providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -16,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers> {/* Umschließe children mit Providers */}
+        <Providers>
           {children}
         </Providers>
       </body>

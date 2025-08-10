@@ -107,16 +107,16 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md mx-auto p-4 space-y-4 bg-white shadow-lg rounded-md">
+    <div className="flex min-h-screen items-center justify-center">
+      <Card className="w-full max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Registrieren</CardTitle>
-          <CardDescription className="text-gray-600">Erstelle dein Konto</CardDescription>
+          <CardDescription>Erstelle dein Konto</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="name" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="name" className="mb-2 block text-sm font-bold">
                 Name:
               </label>
               <Input
@@ -129,7 +129,7 @@ export default function SignUpPage() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="email" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="email" className="mb-2 block text-sm font-bold">
                 E-Mail:
               </label>
               <Input
@@ -144,7 +144,7 @@ export default function SignUpPage() {
               />
             </div>
             <div className="mb-6">
-              <label htmlFor="password" className="mb-2 block text-sm font-bold text-gray-700">
+              <label htmlFor="password" className="mb-2 block text-sm font-bold">
                 Passwort:
               </label>
               <div className="relative">
@@ -174,11 +174,11 @@ export default function SignUpPage() {
               {/* Passwortstärke-Anzeige */}
               {password.length > 0 && (
                 <div className="w-full mt-2">
-                  <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1">
+                  <div className="flex justify-between text-xs font-semibold mb-1">
                     <span>Passwortstärke</span>
                     <span>{passwordStrength === 5 ? "Stark" : "Schwach"}</span>
                   </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-full h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-300 rounded-full ${getStrengthColor(passwordStrength)}`}
                       style={{ width: getStrengthWidth(passwordStrength) }}
@@ -199,7 +199,7 @@ export default function SignUpPage() {
               {loading ? "Registrieren..." : "Registrieren"}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <p className="mt-6 text-center text-sm">
             Du hast bereits ein Konto?{" "}
             <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
               Jetzt anmelden
