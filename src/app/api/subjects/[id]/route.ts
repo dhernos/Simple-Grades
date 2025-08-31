@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
-import { protectedRoute } from "@/lib/protected-api";
+import { protectedRouteWithParams } from "@/lib/protected-api";
 import { Session } from 'next-auth';
 
 const putSubjectHandler = async (req: Request, session: Session, params: { id: string }) => {
@@ -46,5 +46,5 @@ const deleteSubjectHandler = async (req: Request, session: Session, params: { id
   }
 }
 
-export const PUT = protectedRoute(putSubjectHandler);
-export const DELETE = protectedRoute(deleteSubjectHandler);
+export const PUT = protectedRouteWithParams(putSubjectHandler);
+export const DELETE = protectedRouteWithParams(deleteSubjectHandler);

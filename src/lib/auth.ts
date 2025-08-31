@@ -101,7 +101,14 @@ export const authOptions = {
       if (token.error) {
         return {
           ...session,
-          user: null,
+          user: {
+            id: "", // oder eine Dummy-ID, falls zulässig
+            name: null,
+            email: null,
+            image: null,
+            role: null,
+            sessionId: null,
+          },
           expires: new Date(0).toISOString(),
           error: token.error as string,
         };

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
-import { protectedRoute } from "@/lib/protected-api";
+import { protectedRouteWithParams } from "@/lib/protected-api";
 import { Session } from 'next-auth';
 
 // PUT-Methode: Aktualisiert eine Note in der Datenbank
@@ -52,5 +52,5 @@ const deleteHandler = async (request: Request, session: Session, params: { id: s
 }
 
 // Wende den Wrapper auf beide Handler an
-export const PUT = protectedRoute(putHandler);
-export const DELETE = protectedRoute(deleteHandler);
+export const PUT = protectedRouteWithParams(putHandler);
+export const DELETE = protectedRouteWithParams(deleteHandler);
