@@ -29,8 +29,8 @@ export default function TimetablePage() {
       }
       const data: Subject[] = await response.json();
       setSubjects(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsLoading(false);
     }

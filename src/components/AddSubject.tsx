@@ -41,13 +41,12 @@ export function AddSubject({ onSubjectAdded }: { onSubjectAdded?: () => void }) 
       setNewSubjectName("");
       setSuccess(`Subject "${newSubject.name}" added.`);
 
-      // Callback aufrufen, falls vorhanden
       if (onSubjectAdded) {
         onSubjectAdded();
       }
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 

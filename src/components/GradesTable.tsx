@@ -93,8 +93,8 @@ export function GradesTable() {
       }
       const jsonData = await response.json();
       setData(jsonData);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +177,6 @@ export function GradesTable() {
       if (itemTypeToDelete === 'subject') {
         if (isDeletingGradesOnly) {
           endpoint = `/api/grades/bySubjectAndYear`;
-          const subjectToDelete = findSubjectById(selectedItem?.id);
           body = JSON.stringify({ subjectId: selectedItem?.id, year: selectedItem?.jahr });
           headers = { 'Content-Type': 'application/json' };
         } else {
@@ -201,8 +200,8 @@ export function GradesTable() {
         throw new Error("Failed to delete item");
       }
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setSelectedItem(null);
       setIsDeleteDialogOpen(false);
@@ -245,8 +244,8 @@ export function GradesTable() {
       fetchData();
       setIsEditDialogOpen(false);
       setEditingGrade(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
@@ -263,8 +262,8 @@ export function GradesTable() {
         throw new Error("Failed to update subject");
       }
       fetchData();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setIsEditSubjectDialogOpen(false);
       setEditingSubject(null);

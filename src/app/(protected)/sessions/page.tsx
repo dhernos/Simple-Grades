@@ -38,8 +38,8 @@ export default function AdminSessionsPage() {
       }
       const data = await res.json();
       setSessions(data.sessions);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -57,8 +57,8 @@ export default function AdminSessionsPage() {
           throw new Error("Failed to delete session");
         }
         fetchSessions();
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError((err as Error).message);
       }
     }
   };

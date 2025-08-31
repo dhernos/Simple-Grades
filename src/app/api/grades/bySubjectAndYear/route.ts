@@ -1,10 +1,10 @@
-// src/app/api/grades/bySubjectAndYear/route.ts
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
+import { Session } from 'next-auth';
 
 
-const deleteGradesBySubjectAndYearHandler = async (req: Request, session: any) => {
+const deleteGradesBySubjectAndYearHandler = async (req: Request, session: Session) => {
   const { subjectId, year } = await req.json();
   const userId = session.user.id; // Sichere Benutzer-ID aus der Session
 

@@ -1,11 +1,10 @@
-// src/app/api/grades/[id]/route.ts
-
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
+import { Session } from 'next-auth';
 
 // PUT-Methode: Aktualisiert eine Note in der Datenbank
-const putHandler = async (request: Request, session: any, params: { id: string }) => {
+const putHandler = async (request: Request, session: Session, params: { id: string }) => {
     const { id } = params;
     const userId = session.user.id; // Holen wir uns die sichere Benutzer-ID aus der Session
 
@@ -33,7 +32,7 @@ const putHandler = async (request: Request, session: any, params: { id: string }
 }
 
 // DELETE-Methode: Löscht eine Note aus der Datenbank
-const deleteHandler = async (request: Request, session: any, params: { id: string }) => {
+const deleteHandler = async (request: Request, session: Session, params: { id: string }) => {
     const { id } = params;
     const userId = session.user.id; // Auch hier verwenden wir die sichere Benutzer-ID
 

@@ -1,12 +1,11 @@
-// src/app/api/grades/route.ts
-
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
+import { Session } from 'next-auth';
 
 // Hier ist dein GET-Handler, der jetzt geschützt ist!
 // Er ruft nur Noten für den angemeldeten Benutzer ab.
-const getGradesHandler = async (req: Request, session: any) => {
+const getGradesHandler = async (req: Request, session: Session) => {
   try {
     const userId = session.user.id;
     const grades = await prisma.noten.findMany({
@@ -25,7 +24,7 @@ const getGradesHandler = async (req: Request, session: any) => {
 };
 
 // Hier ist dein POST-Handler, der jetzt viel kürzer ist!
-const postGradeHandler = async (request: Request, session: any) => {
+const postGradeHandler = async (request: Request, session: Session) => {
   const userId = session.user.id;
 
   try {
@@ -55,6 +54,5 @@ const postGradeHandler = async (request: Request, session: any) => {
   }
 };
 
-// WICHTIG: Weise die Wrapper-Funktion den HTTP-Methoden zu
 export const GET = protectedRoute(getGradesHandler);
 export const POST = protectedRoute(postGradeHandler);

@@ -1,38 +1,33 @@
-// src/app/api/timetable/route.ts
-
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
+import { Session } from 'next-auth';
 
-// Handler zum Speichern des Stundenplans für den authentifizierten Benutzer
-const postTimetableHandler = async (req: Request, session: any) => {
+const postTimetableHandler = async (req: Request, session: Session) => {
   const { data } = await req.json();
   const userId = session.user.id;
+  type TimetableCell = {
+    subjectId?: string | null;
+  };
 
   if (!Array.isArray(data)) {
-    return NextResponse.json({ error: 'Ungültiges Datenformat' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid format' }, { status: 400 });
   }
 
   try {
-    // Führe die Transaktion aus, um alle Operationen atomar zu gestalten
     await prisma.$transaction(async (tx) => {
-      // 1. Lösche zuerst alle alten Stundenplan-Einträge des Benutzers.
-      // Dank "onDelete: Cascade" werden auch alle verknüpften Zellen gelöscht.
       await tx.timetableRow.deleteMany({
         where: { userId },
       });
 
-      // 2. Erstelle die neuen Stundenplan-Einträge mit ihren Zellen.
-      // Diese Schleife startet erst, wenn das Löschen abgeschlossen ist.
       if (data.length > 0) {
-        // Verwenden Sie eine Schleife für jeden Eintrag
         for (let i = 0; i < data.length; i++) {
           const row = data[i];
           if (!row.label || !Array.isArray(row.cells)) {
-            throw new Error("Ungültiges Zeilenformat");
+            throw new Error("Invalid format");
           }
 
-          const newCellsData = row.cells.map((cell: any, cellIndex: number) => ({
+          const newCellsData = row.cells.map((cell: TimetableCell, cellIndex: number) => ({
             day: cellIndex,
             subjectId: cell.subjectId || null,
           }));
@@ -53,16 +48,19 @@ const postTimetableHandler = async (req: Request, session: any) => {
       }
     });
 
-    return NextResponse.json({ message: "Stundenplan erfolgreich gespeichert." });
-  } catch (error: any) {
-    console.error('Fehler beim Speichern des Stundenplans:', error);
-    return NextResponse.json({ error: error.message || 'Interner Serverfehler' }, { status: 500 });
+    return NextResponse.json({ message: "Timetable saved." });
+  } catch (error: unknown) {
+    let errorMessage = 'Internal Servererror';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    console.error('Error fetching the timetable:', error);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 };
 
-
-// Handler zum Abrufen des Stundenplans für den authentifizierten Benutzer (unverändert)
-const getTimetableHandler = async (req: Request, session: any) => {
+const getTimetableHandler = async (req: Request, session: Session) => {
   try {
     const timetableRows = await prisma.timetableRow.findMany({
       where: { userId: session.user.id },
@@ -88,8 +86,8 @@ const getTimetableHandler = async (req: Request, session: any) => {
 
     return NextResponse.json(formattedData);
   } catch (error) {
-    console.error('Fehler beim Abrufen des Stundenplans:', error);
-    return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
+    console.error('Error fetching the timetable:', error);
+    return NextResponse.json({ error: 'Internal Servererror' }, { status: 500 });
   }
 };
 

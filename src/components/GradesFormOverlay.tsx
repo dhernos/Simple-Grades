@@ -32,8 +32,8 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
       if (data.length > 0) {
         setSelectedSubjectId(data[0].id);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   }
 
@@ -68,8 +68,8 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
       setNewSubjectName("");
       setSuccess(`Fach "${newSubject.name}" wurde hinzugefügt.`);
       setSelectedSubjectId(newSubject.id);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
@@ -100,11 +100,11 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
       }
 
       setSuccess(`Note "${note}" für das Fach wurde gespeichert.`);
-      onGradeAdded(); // Callback um die Tabelle neu zu laden
+      onGradeAdded();
       setNote(null);
       setJahr(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
@@ -124,7 +124,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
               <Label htmlFor="subject-select" className="mb-1 p-1">Subject:</Label>
               <Select onValueChange={setSelectedSubjectId} value={selectedSubjectId} required>
                 <SelectTrigger id="subject-select" className="w-full cursor-pointer">
-                  <SelectValue placeholder="Wählen Sie ein Fach" />
+                  <SelectValue placeholder="Subject" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (

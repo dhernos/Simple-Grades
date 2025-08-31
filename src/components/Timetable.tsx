@@ -51,7 +51,6 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
   );
   const [initialLoad, setInitialLoad] = useState(true);
 
-  // Load the timetable on initial component load
   useEffect(() => {
     async function loadTimetable() {
       try {
@@ -71,27 +70,27 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
     loadTimetable();
   }, []);
 
-  // Save the timetable when 'rows' change AND edit mode is active
   useEffect(() => {
+    const saveTimetable = async () => {
+      setIsSaving(true);
+      try {
+        await fetch('/api/timetable', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: rows }),
+        });
+      } catch (error) {
+        console.error("Error saving timetable:", error);
+      } finally {
+        setIsSaving(false);
+      }
+    };
     if (!initialLoad && editMode) {
       saveTimetable();
     }
-  }, [rows, editMode, initialLoad]);
+  }, [rows, editMode, initialLoad, setIsSaving]);
 
-  const saveTimetable = async () => {
-    setIsSaving(true);
-    try {
-      await fetch('/api/timetable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: rows }),
-      });
-    } catch (error) {
-      console.error("Error saving timetable:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
 
   const addRow = () => {
     if (newRowLabel.trim() === "") return;

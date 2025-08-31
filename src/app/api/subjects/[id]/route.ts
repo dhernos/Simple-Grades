@@ -1,11 +1,9 @@
-// src/app/api/subjects/[id]/route.ts
-
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
-import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
+import { protectedRoute } from "@/lib/protected-api";
+import { Session } from 'next-auth';
 
-// PUT-Methode: Aktualisiert ein Fach
-const putSubjectHandler = async (req: Request, session: any, params: { id: string }) => {
+const putSubjectHandler = async (req: Request, session: Session, params: { id: string }) => {
   const { id } = params;
   const { name } = await req.json();
 
@@ -17,7 +15,7 @@ const putSubjectHandler = async (req: Request, session: any, params: { id: strin
     const updatedSubject = await prisma.subject.update({
       where: {
         id,
-        userId: session.user.id, // Hier wird der Benutzer abgeglichen
+        userId: session.user.id,
       },
       data: {
         name,
@@ -30,15 +28,14 @@ const putSubjectHandler = async (req: Request, session: any, params: { id: strin
   }
 }
 
-// DELETE-Methode: Löscht ein Fach und alle zugehörigen Noten
-const deleteSubjectHandler = async (req: Request, session: any, params: { id: string }) => {
+const deleteSubjectHandler = async (req: Request, session: Session, params: { id: string }) => {
   const { id } = params;
 
   try {
     await prisma.subject.delete({
       where: {
         id,
-        userId: session.user.id, // Hier wird der Benutzer abgeglichen
+        userId: session.user.id,
       },
     });
 

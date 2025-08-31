@@ -9,7 +9,7 @@ export function SkeletonGradesTable() {
 
   return (
     <>
-      {years.map((year, yearIndex) => (
+      {years.map((year) => (
         <div key={year} className="rounded-lg shadow-md p-4 mb-8">
           <div className="mb-4">
             <Skeleton className="h-8 w-40" />
@@ -25,7 +25,7 @@ export function SkeletonGradesTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subjects.map((subject, subjectIndex) => (
+              {subjects.map((subject) => (
                 <TableRow key={`${year}-${subject}`}>
                   <TableCell className="font-medium"><Skeleton className="h-4 w-32" /></TableCell>
                   {Array.from({ length: 4 }).map((_, i) => (

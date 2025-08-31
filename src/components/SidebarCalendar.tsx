@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format, isSameDay } from 'date-fns';
-import { de, enGB, enUS } from 'date-fns/locale';
+import { de, enGB } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ThemeToggle from './theme-toggle';
-// NEUER Import für ein Icon
 import { Trash2 } from 'lucide-react';
 
 interface Appointment {
@@ -26,7 +25,6 @@ export function SidebarCalendar() {
     const [newAppointmentTitle, setNewAppointmentTitle] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Filtert die Termine für den ausgewählten Tag
     const appointmentsForSelectedDay = allAppointments.filter(appt =>
         isSameDay(new Date(appt.date), selectedDay || new Date())
     );
@@ -34,7 +32,6 @@ export function SidebarCalendar() {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            // API-Aufrufe parallel ausführen
             const [allRes, upcomingRes] = await Promise.all([
                 fetch('/api/appointments?all=true'),
                 fetch('/api/appointments?upcoming=true'),
@@ -59,8 +56,6 @@ export function SidebarCalendar() {
     useEffect(() => {
         fetchData();
     }, []);
-
-    // NEUE Funktion zum Löschen eines Termins
     const handleDeleteAppointment = async (id: string) => {
         setIsLoading(true);
         try {
@@ -70,7 +65,7 @@ export function SidebarCalendar() {
 
             if (res.ok) {
                 toast.success('Termin erfolgreich gelöscht!');
-                fetchData(); // Termine neu laden
+                fetchData();
             } else {
                 toast.error('Fehler beim Löschen des Termins.');
             }
@@ -100,7 +95,7 @@ export function SidebarCalendar() {
             if (res.ok) {
                 toast.success('Termin erfolgreich erstellt!');
                 setNewAppointmentTitle('');
-                fetchData(); // Termine neu laden
+                fetchData();
             } else {
                 toast.error('Fehler beim Erstellen des Termins.');
             }
@@ -118,7 +113,6 @@ export function SidebarCalendar() {
 
     return (
         <div className="p-4 space-y-4">
-            {/* Kalender */}
             <h3 className="text-xl font-semibold">Calendar</h3>
             <Calendar
                 mode="single"
@@ -132,8 +126,6 @@ export function SidebarCalendar() {
             <div className="border-t pt-4">
                 {selectedDay && (
                     <>
-
-                        {/* Formular zum Hinzufügen von Terminen */}
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button variant="outline" className="w-full justify-start text-left font-normal mb-4">
@@ -153,8 +145,6 @@ export function SidebarCalendar() {
                                 </Button>
                             </PopoverContent>
                         </Popover>
-
-                        {/* Liste der Termine für den ausgewählten Tag (ohne Uhrzeit) */}
                         {isLoading ? (
                             <p>Loading appointments...</p>
                         ) : appointmentsForSelectedDay.length > 0 ? (
@@ -180,7 +170,6 @@ export function SidebarCalendar() {
                 )}
             </div>
             <div className="border-t pt-4">
-                {/* Liste der nächsten 5 Termine */}
                 <h4 className="text-lg font-bold mt-6 pb-4">Your next appointments:</h4>
                 {isLoading ? (
                     <p>Loading appointments...</p>
