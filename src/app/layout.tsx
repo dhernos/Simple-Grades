@@ -8,8 +8,8 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "NextAuth.js Template",
-  description: "Next.js template with NextAuth.js, App Router, Prisma and JWT.",
+  title: "Simple Grades",
+  description: "Your Grades and timtable made easy.",
 }
 
 export default function RootLayout({
