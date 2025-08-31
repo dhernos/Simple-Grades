@@ -1,24 +1,17 @@
-// src/app/api/sessions/route.ts
-
 import { NextResponse } from "next/server";
-import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
+import { protectedRoute } from "@/lib/protected-api";
 import redis from "@/lib/redis";
+import { Session } from "next-auth";
 
-// Funktion, um alle Session-Schlüssel zu finden
+// Function to get all session keys
 async function getAllSessionKeys() {
-  // Redis KEYS ist für große Datenbanken langsam, aber für Debug-Zwecke ok.
-  // In einer Produktionseumgebung sollte SCAN verwendet werden.
   return redis.keys("session:*");
 }
 
-const getSessionsHandler = async (req: Request, session: any) => {
-  // Der Wrapper hat bereits die Session-Gültigkeit geprüft.
-  // Wir müssen nur noch sicherstellen, dass der Benutzer die richtige Rolle hat.
-  if (session.user.role !== "USER") {
-    return NextResponse.json({ error: "Access Denied" }, { status: 403 });
-  }
-
+const getSessionsHandler = async (req: Request, session: Session) => {
   try {
+    const currentUserId = session.user.id; // Get the ID of the current user
+
     const keys = await getAllSessionKeys();
     const sessions = await Promise.all(
       keys.map(async (key) => {
@@ -26,32 +19,25 @@ const getSessionsHandler = async (req: Request, session: any) => {
         const sessionData = await redis.hgetall(key);
         const ttl = await redis.ttl(key);
 
-        const ipAddress = sessionData.ipAddress || "N/A";
-        const userAgent = sessionData.userAgent || "N/A";
-
         return {
           sessionId,
           ...sessionData,
           ttlInSeconds: ttl,
-          ipAddress,
-          userAgent,
         };
       })
     );
 
-    return NextResponse.json({ sessions });
+    // Filter sessions to only show those belonging to the current user
+    const userSessions = sessions.filter(s => s.userId === currentUserId);
+
+    return NextResponse.json({ sessions: userSessions });
   } catch (error) {
     console.error("Failed to fetch sessions from Redis:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 };
 
-const deleteSessionHandler = async (req: Request, session: any) => {
-  // Hier prüfen wir erneut, dass es ein Admin ist, für zusätzliche Sicherheit.
-  if (session.user.role !== "USER") {
-    return NextResponse.json({ error: "Access Denied" }, { status: 403 });
-  }
-
+const deleteSessionHandler = async (req: Request, session: Session) => {
   const { sessionId } = await req.json();
 
   if (!sessionId) {
@@ -59,6 +45,14 @@ const deleteSessionHandler = async (req: Request, session: any) => {
   }
 
   try {
+    const sessionData = await redis.hgetall(`session:${sessionId}`);
+    const currentUserId = session.user.id;
+
+    // Ensure the user can only delete their own sessions
+    if (sessionData.userId !== currentUserId) {
+      return NextResponse.json({ error: "Unauthorized: You can only delete your own sessions." }, { status: 403 });
+    }
+
     await redis.del(`session:${sessionId}`);
     return NextResponse.json({ message: `Session ${sessionId} deleted.` });
   } catch (error) {

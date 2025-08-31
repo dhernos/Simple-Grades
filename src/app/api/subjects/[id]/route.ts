@@ -1,10 +1,8 @@
 // src/app/api/subjects/[id]/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
-
-const prisma = new PrismaClient();
 
 // PUT-Methode: Aktualisiert ein Fach
 const putSubjectHandler = async (req: Request, session: any, params: { id: string }) => {

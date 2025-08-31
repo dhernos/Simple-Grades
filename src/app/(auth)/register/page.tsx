@@ -1,4 +1,3 @@
-// src/app/(auth)/register/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/eye_icon";
 
-// Diese Funktion bewertet die Stärke eines Passworts
 const validatePassword = (password: string) => {
   let strength = 0;
   if (password.length > 7) strength += 1;
@@ -32,7 +30,6 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Aktualisiert die Passwortstärke, wenn sich das Passwort ändert
   useEffect(() => {
     setPasswordStrength(validatePassword(password));
   }, [password]);
@@ -44,13 +41,13 @@ export default function SignUpPage() {
     setLoading(true);
 
     if (!name || !email || !password) {
-      setError("Bitte füllen Sie alle Felder aus.");
+      setError("Please fill out all required fields.");
       setLoading(false);
       return;
     }
 
     if (passwordStrength < 5) {
-      setError("Das Passwort ist zu schwach. Es muss Großbuchstaben, Kleinbuchstaben, Zahlen und Sonderzeichen enthalten und mindestens 8 Zeichen lang sein.");
+      setError("Your Password is too weak.");
       setLoading(false);
       return;
     }
@@ -67,17 +64,17 @@ export default function SignUpPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Registrierung erfolgreich! Du kannst dich jetzt anmelden.");
+        setSuccess("Sign up succesfull! You can login now.");
         setTimeout(() => {
           router.push("/login?signupSuccess=true");
         }, 2000);
       } else {
-        setError(data.message || "Registrierung fehlgeschlagen. Bitte versuche es erneut.");
-        console.error("Registrierung fehlgeschlagen:", data);
+        setError(data.message || "Sign up failed. Please try again.");
+        console.error("Sign up failed:", data);
       }
     } catch (err) {
-      console.error("Fehler bei der Registrierung:", err);
-      setError("Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.");
+      console.error("Error during sign up:", err);
+      setError("An unknown error occured. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -110,8 +107,8 @@ export default function SignUpPage() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Registrieren</CardTitle>
-          <CardDescription>Erstelle dein Konto</CardDescription>
+          <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+          <CardDescription>Create your Account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleSubmit}>
@@ -145,7 +142,7 @@ export default function SignUpPage() {
             </div>
             <div className="mb-6">
               <label htmlFor="password" className="mb-2 block text-sm font-bold">
-                Passwort:
+                Password:
               </label>
               <div className="relative">
                 <Input
@@ -170,13 +167,12 @@ export default function SignUpPage() {
                   <span className="sr-only">Toggle password visibility</span>
                 </Button>
               </div>
-              
-              {/* Passwortstärke-Anzeige */}
+
               {password.length > 0 && (
                 <div className="w-full mt-2">
                   <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span>Passwortstärke</span>
-                    <span>{passwordStrength === 5 ? "Stark" : "Schwach"}</span>
+                    <span>Password strenght</span>
+                    <span>{passwordStrength === 5 ? "Strong" : "Weak"}</span>
                   </div>
                   <div className="w-full h-2 rounded-full overflow-hidden">
                     <div
@@ -187,22 +183,22 @@ export default function SignUpPage() {
                 </div>
               )}
             </div>
-            
+
             {error && <p className="mb-4 text-center text-red-500">{error}</p>}
             {success && <p className="mb-4 text-center text-green-600">{success}</p>}
-            
+
             <Button
               type="submit"
               className="w-full cursor-pointer"
               disabled={loading || !isFormValid}
             >
-              {loading ? "Registrieren..." : "Registrieren"}
+              {loading ? "Signing up..." : "Sign up"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm">
-            Du hast bereits ein Konto?{" "}
+            Already have an account?{" "}
             <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Jetzt anmelden
+              Login
             </Link>
           </p>
         </CardContent>

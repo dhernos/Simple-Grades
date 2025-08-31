@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/eye_icon";
 
-// Diese Funktion bewertet die Stärke eines Passworts
 const validatePassword = (password: string) => {
   let strength = 0;
   if (password.length > 7) strength += 1;
@@ -144,7 +143,7 @@ export default function ResetPasswordPage() {
                   <span className="sr-only">Passwort anzeigen/verbergen</span>
                 </Button>
               </div>
-              
+
               {password.length > 0 && (
                 <div className="w-full mt-2">
                   <div className="flex justify-between text-xs font-semibold mb-1">

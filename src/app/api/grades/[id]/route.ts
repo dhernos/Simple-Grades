@@ -1,10 +1,8 @@
 // src/app/api/grades/[id]/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
-
-const prisma = new PrismaClient();
 
 // PUT-Methode: Aktualisiert eine Note in der Datenbank
 const putHandler = async (request: Request, session: any, params: { id: string }) => {
@@ -13,7 +11,7 @@ const putHandler = async (request: Request, session: any, params: { id: string }
 
     try {
         const updateData = await request.json();
-        
+
         const updatedGrade = await prisma.noten.update({
             where: {
                 id: id,
@@ -25,7 +23,7 @@ const putHandler = async (request: Request, session: any, params: { id: string }
             },
             include: { subject: true },
         });
-        
+
         return NextResponse.json(updatedGrade);
     } catch (error) {
         console.error('Fehler beim Aktualisieren der Note:', error);
@@ -39,14 +37,14 @@ const deleteHandler = async (request: Request, session: any, params: { id: strin
     const { id } = params;
     const userId = session.user.id; // Auch hier verwenden wir die sichere Benutzer-ID
 
-    try {  
+    try {
         await prisma.noten.delete({
             where: {
                 id: id,
                 userId: userId, // WICHTIG: Stelle sicher, dass die Note dem aktuellen Benutzer gehört
             },
         });
-        
+
         return new NextResponse(`Note mit ID ${id} wurde gelöscht.`, { status: 200 });
     } catch (error) {
         console.error('Fehler beim Löschen der Note:', error);

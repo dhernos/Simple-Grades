@@ -1,10 +1,8 @@
 // src/app/api/grades/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
-
-const prisma = new PrismaClient();
 
 // Hier ist dein GET-Handler, der jetzt geschützt ist!
 // Er ruft nur Noten für den angemeldeten Benutzer ab.
@@ -15,7 +13,7 @@ const getGradesHandler = async (req: Request, session: any) => {
       where: { userId }, // WICHTIG: Filtere die Noten nach der Benutzer-ID
       include: { subject: true },
       orderBy: [
-        { jahr: 'asc' }, 
+        { jahr: 'asc' },
         { createdAt: 'asc' },
       ],
     });
@@ -29,7 +27,7 @@ const getGradesHandler = async (req: Request, session: any) => {
 // Hier ist dein POST-Handler, der jetzt viel kürzer ist!
 const postGradeHandler = async (request: Request, session: any) => {
   const userId = session.user.id;
-  
+
   try {
     const newGradeData = await request.json();
     if (!newGradeData.subject?.id || newGradeData.note === undefined || newGradeData.jahr === undefined) {
@@ -43,13 +41,13 @@ const postGradeHandler = async (request: Request, session: any) => {
         subject: {
           connect: { id: newGradeData.subject.id },
         },
-        user: { 
+        user: {
           connect: { id: userId }, // Nutze die sichere ID aus der Session
         },
       },
       include: { subject: true, user: true },
     });
-    
+
     return NextResponse.json(newGrade, { status: 201 });
   } catch (error) {
     console.error('Fehler beim Erstellen der Note:', error);

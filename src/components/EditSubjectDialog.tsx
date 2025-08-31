@@ -1,5 +1,3 @@
-// src/components/EditSubjectDialog.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -31,15 +29,15 @@ export function EditSubjectDialog({ isOpen, onClose, onSave, subjectId, initialN
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Fach bearbeiten</DialogTitle>
+          <DialogTitle>Edit Subject</DialogTitle>
           <DialogDescription>
-            Ändere den Namen des Fachs. Klicke auf "Speichern", wenn du fertig bist.
+            Edit the Subject. Select &quot;Save&quot; to save your changes.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Fachname
+              Subject
             </Label>
             <Input
               id="name"
@@ -50,8 +48,8 @@ export function EditSubjectDialog({ isOpen, onClose, onSave, subjectId, initialN
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="cursor-pointer">Abbrechen</Button>
-          <Button onClick={handleSave} className="cursor-pointer">Speichern</Button>
+          <Button variant="outline" onClick={onClose} className="cursor-pointer">Cancel</Button>
+          <Button onClick={handleSave} className="cursor-pointer">Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -12,7 +12,7 @@ const SessionTTL = ({ ttlInSeconds }) => {
 
   return (
     <p>
-      <span className="font-semibold">Verbleibende Zeit:</span>{" "}
+      <span className="font-semibold">Remaining time:</span>{" "}
       {days > 0 && `${days}d `}
       {hours > 0 && `${hours}h `}
       {minutes > 0 && `${minutes}m `}

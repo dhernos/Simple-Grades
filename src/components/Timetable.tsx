@@ -29,7 +29,7 @@ interface TimetableCell {
   subjectName: string | null;
 }
 
-const fixedDays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+const fixedDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 interface Row {
   id: string;
@@ -46,22 +46,24 @@ interface TimetableProps {
 export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [newRowLabel, setNewRowLabel] = useState("");
+  const [newRowSubjects, setNewRowSubjects] = useState(
+    Array(fixedDays.length).fill({ subjectId: null, subjectName: null })
+  );
   const [initialLoad, setInitialLoad] = useState(true);
 
-  // Lade den Stundenplan beim ersten Laden der Komponente
+  // Load the timetable on initial component load
   useEffect(() => {
     async function loadTimetable() {
       try {
         const response = await fetch('/api/timetable');
         if (response.ok) {
           const data = await response.json();
-          // Stelle sicher, dass die geladenen Daten das richtige Format haben
           if (data && data.length > 0) {
             setRows(data);
           }
         }
       } catch (error) {
-        console.error("Fehler beim Laden des Stundenplans:", error);
+        console.error("Error loading timetable:", error);
       } finally {
         setInitialLoad(false);
       }
@@ -69,12 +71,12 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
     loadTimetable();
   }, []);
 
-  // Speichere den Stundenplan, wenn sich die 'rows' ändern UND der Bearbeitungsmodus aktiv ist
+  // Save the timetable when 'rows' change AND edit mode is active
   useEffect(() => {
     if (!initialLoad && editMode) {
       saveTimetable();
     }
-  }, [rows, editMode]); // Abhängigkeit von editMode hinzufügen, um auf Änderungen zu reagieren
+  }, [rows, editMode, initialLoad]);
 
   const saveTimetable = async () => {
     setIsSaving(true);
@@ -85,7 +87,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
         body: JSON.stringify({ data: rows }),
       });
     } catch (error) {
-      console.error("Fehler beim Speichern des Stundenplans:", error);
+      console.error("Error saving timetable:", error);
     } finally {
       setIsSaving(false);
     }
@@ -97,10 +99,13 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
     const newRow: Row = {
       id: `row-${Date.now()}`,
       label: newRowLabel,
-      cells: Array(fixedDays.length).fill({ subjectId: null, subjectName: null }),
+      cells: newRowSubjects,
     };
     setRows([...rows, newRow]);
     setNewRowLabel("");
+    setNewRowSubjects(
+      Array(fixedDays.length).fill({ subjectId: null, subjectName: null })
+    );
   };
 
   const removeRow = (id: string) => {
@@ -109,40 +114,51 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
 
   const updateCellSubject = (rowIndex: number, cellIndex: number, value: string) => {
     const newRows = [...rows];
-    
-    if (value === "clear-selection") {
+    const selectedSubject = subjects.find(s => s.id === value);
+    if (value === "clear-selection" || !selectedSubject) {
       newRows[rowIndex].cells[cellIndex] = { subjectId: null, subjectName: null };
     } else {
-      const selectedSubject = subjects.find(s => s.id === value);
-      if (selectedSubject) {
-        newRows[rowIndex].cells[cellIndex] = {
-          subjectId: selectedSubject.id,
-          subjectName: selectedSubject.name,
-        };
-      }
+      newRows[rowIndex].cells[cellIndex] = {
+        subjectId: selectedSubject.id,
+        subjectName: selectedSubject.name,
+      };
     }
     setRows(newRows);
   };
 
+  const handleNewRowSubjectChange = (dayIndex: number, value: string) => {
+    const newSelection = [...newRowSubjects];
+    const selectedSubject = subjects.find(s => s.id === value);
+    if (value === "clear-selection" || !selectedSubject) {
+      newSelection[dayIndex] = { subjectId: null, subjectName: null };
+    } else {
+      newSelection[dayIndex] = {
+        subjectId: selectedSubject.id,
+        subjectName: selectedSubject.name,
+      };
+    }
+    setNewRowSubjects(newSelection);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-8">
-      <Table className="table-fixed">
+    <div className="rounded-lg shadow-md mb-8">
+      <Table className="">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[60px] text-left">Zeit</TableHead>
+            <TableHead className="w-[60px] text-left">Hour</TableHead>
             {fixedDays.map((day, index) => (
               <TableHead key={index} className="w-[120px] text-center">
                 {day}
               </TableHead>
             ))}
-            {editMode && <TableHead className="w-[90px] text-center">Aktion</TableHead>}
+            {editMode && <TableHead className="w-[90px] text-center">Action</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.length === 0 && (
             <TableRow>
               <TableCell colSpan={fixedDays.length + (editMode ? 2 : 1)} className="h-24 text-center text-gray-500">
-                {editMode ? "Fügen Sie über das Formular unten eine Zeile hinzu." : "Keine Einträge vorhanden. Wechseln Sie in den Bearbeitungsmodus, um welche hinzuzufügen."}
+                {editMode ? "Start by adding rows." : "No rows. Add them in editor mode."}
               </TableCell>
             </TableRow>
           )}
@@ -157,10 +173,10 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
                       value={cell.subjectId || "clear-selection"}
                     >
                       <SelectTrigger className="w-full cursor-pointer">
-                        <SelectValue placeholder="Fach wählen" />
+                        <SelectValue placeholder="Select Subject" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="clear-selection" className="cursor-pointer">Fach wählen</SelectItem>
+                        <SelectItem value="clear-selection" className="cursor-pointer">Select Subject</SelectItem>
                         {subjects.map((subject) => (
                           <SelectItem key={subject.id} value={subject.id} className="cursor-pointer">
                             {subject.name}
@@ -180,7 +196,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
                     onClick={() => removeRow(row.id)}
                     className="cursor-pointer"
                   >
-                    Löschen
+                    Delete
                   </Button>
                 </TableCell>
               )}
@@ -190,16 +206,33 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
             <TableRow>
               <TableCell className="font-medium">
                 <Input
-                  placeholder="Stunde"
+                  placeholder="Hour"
                   value={newRowLabel}
                   onChange={(e) => setNewRowLabel(e.target.value)}
                 />
               </TableCell>
-              {Array(fixedDays.length).fill(null).map((_, index) => (
-                <TableCell key={`placeholder-${index}`}></TableCell>
+              {fixedDays.map((_, index) => (
+                <TableCell key={`add-cell-${index}`}>
+                  <Select
+                    onValueChange={(value) => handleNewRowSubjectChange(index, value)}
+                    value={newRowSubjects[index].subjectId || "clear-selection"}
+                  >
+                    <SelectTrigger className="w-full cursor-pointer">
+                      <SelectValue placeholder="Subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="clear-selection" className="cursor-pointer">Subject</SelectItem>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject.id} value={subject.id} className="cursor-pointer">
+                          {subject.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
               ))}
               <TableCell className="text-center">
-                <Button onClick={addRow} className="cursor-pointer">Zeile hinzufügen</Button>
+                <Button onClick={addRow} className="cursor-pointer">Add Row</Button>
               </TableCell>
             </TableRow>
           )}

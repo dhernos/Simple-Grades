@@ -1,10 +1,8 @@
 // src/app/api/timetable/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
-
-const prisma = new PrismaClient();
 
 // Handler zum Speichern des Stundenplans für den authentifizierten Benutzer
 const postTimetableHandler = async (req: Request, session: any) => {

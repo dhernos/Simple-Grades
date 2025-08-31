@@ -52,13 +52,13 @@ export const authOptions = {
         if (!isValidPassword) {
           throw new Error("Ungültige Anmeldeinformationen.");
         }
-        
+
         // NEU: Session in Redis erstellen
         const sessionId = randomUUID();
         const now = Date.now();
         const maxAgeInSeconds = credentials.rememberMe === "true" ? 7 * 24 * 60 * 60 : 7 * 60 * 60; // 7 Tage oder 7 Stunden
         const sessionExpiresAt = now + maxAgeInSeconds * 1000;
-        
+
         // Speichere die Session-Daten in Redis als Hash
         await redis.hmset(`session:${sessionId}`, {
           userId: user.id,
@@ -132,11 +132,12 @@ export const authOptions = {
           error: token.error as string,
         };
       }
-      
+
       // Übertrage die Daten vom Token zur Session
       if (token?.id) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.sessionId = token.sessionId as string;
       }
 
       // Setze das Ablaufdatum der Session basierend auf dem JWT

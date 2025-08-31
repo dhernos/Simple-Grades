@@ -1,9 +1,8 @@
 // src/app/api/grades/bySubjectAndYear/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api";
 
-const prisma = new PrismaClient();
 
 const deleteGradesBySubjectAndYearHandler = async (req: Request, session: any) => {
   const { subjectId, year } = await req.json();

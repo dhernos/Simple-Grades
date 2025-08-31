@@ -112,16 +112,16 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
     <div className="p-4">
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
       {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
-      
+
       <Tabs defaultValue="add-grade" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="add-grade" className="cursor-pointer">Note hinzufügen</TabsTrigger>
-          <TabsTrigger value="add-subject" className="cursor-pointer">Fach hinzufügen</TabsTrigger>
+          <TabsTrigger value="add-grade" className="cursor-pointer">Add Grade</TabsTrigger>
+          <TabsTrigger value="add-subject" className="cursor-pointer">Add Subject</TabsTrigger>
         </TabsList>
         <TabsContent value="add-grade" className="mt-4">
           <form onSubmit={handleSaveGrade} className="space-y-4">
             <div>
-              <Label htmlFor="subject-select" className="mb-1">Fach:</Label>
+              <Label htmlFor="subject-select" className="mb-1 p-1">Subject:</Label>
               <Select onValueChange={setSelectedSubjectId} value={selectedSubjectId} required>
                 <SelectTrigger id="subject-select" className="w-full cursor-pointer">
                   <SelectValue placeholder="Wählen Sie ein Fach" />
@@ -134,7 +134,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
               </Select>
             </div>
             <div>
-              <Label htmlFor="note-input">Note:</Label>
+              <Label htmlFor="note-input" className="p-1">Grade:</Label>
               <Input
                 id="note-input"
                 type="number"
@@ -142,42 +142,42 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
                 max="6"
                 value={note || ''}
                 onChange={(e) => setNote(parseInt(e.target.value))}
-                placeholder="Note (z.B. 2)"
+                placeholder="Grade (e.g. 2)"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="year-input">Jahr:</Label>
+              <Label htmlFor="year-input" className="p-1">Year:</Label>
               <Input
                 id="year-input"
                 type="number"
                 min="2000"
                 value={jahr || ''}
                 onChange={(e) => setJahr(parseInt(e.target.value))}
-                placeholder="Jahr (z.B. 2024)"
+                placeholder="Year (e.g. 2024)"
                 required
               />
             </div>
             <Button type="submit" className="w-full cursor-pointer">
-              Note speichern
+              Save grade
             </Button>
           </form>
         </TabsContent>
         <TabsContent value="add-subject" className="mt-4">
           <form onSubmit={handleAddSubject} className="space-y-4">
             <div>
-              <Label htmlFor="new-subject-input">Neues Fach:</Label>
+              <Label htmlFor="new-subject-input" className="pb-4">New Subject:</Label>
               <Input
                 id="new-subject-input"
                 type="text"
                 value={newSubjectName}
                 onChange={(e) => setNewSubjectName(e.target.value)}
-                placeholder="Fachname (z.B. Mathematik)"
+                placeholder="Subject (e.g. Maths)"
                 required
               />
             </div>
             <Button type="submit" className="w-full cursor-pointer">
-              Fach hinzufügen
+              Add Subject
             </Button>
           </form>
         </TabsContent>

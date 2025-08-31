@@ -21,7 +21,7 @@ export function AddSubject({ onSubjectAdded }: { onSubjectAdded?: () => void }) 
     setSuccess(null);
 
     if (!newSubjectName) {
-      setError("Bitte geben Sie einen Fachnamen ein.");
+      setError("Please enter a Subject name.");
       return;
     }
 
@@ -34,18 +34,18 @@ export function AddSubject({ onSubjectAdded }: { onSubjectAdded?: () => void }) 
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Hinzufügen des Fachs.');
+        throw new Error(errorData.error || 'Error adding the subject.');
       }
 
       const newSubject: Subject = await response.json();
       setNewSubjectName("");
-      setSuccess(`Fach "${newSubject.name}" wurde hinzugefügt.`);
-      
+      setSuccess(`Subject "${newSubject.name}" added.`);
+
       // Callback aufrufen, falls vorhanden
       if (onSubjectAdded) {
         onSubjectAdded();
       }
-      
+
     } catch (err: any) {
       setError(err.message);
     }
@@ -55,21 +55,21 @@ export function AddSubject({ onSubjectAdded }: { onSubjectAdded?: () => void }) 
     <div className="p-4">
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
       {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
-      
+
       <form onSubmit={handleAddSubject} className="space-y-4">
         <div>
-          <Label htmlFor="new-subject-input">Neues Fach:</Label>
+          <Label htmlFor="new-subject-input" className="pb-4">New Subject:</Label>
           <Input
             id="new-subject-input"
             type="text"
             value={newSubjectName}
             onChange={(e) => setNewSubjectName(e.target.value)}
-            placeholder="Fachname (z.B. Mathematik)"
+            placeholder="Subject (e.g. Maths)"
             required
           />
         </div>
         <Button type="submit" className="w-full cursor-pointer">
-          Fach hinzufügen
+          Add Subject
         </Button>
       </form>
     </div>

@@ -76,9 +76,9 @@ export function GradesTable() {
         setSelectedItem(null);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -168,7 +168,7 @@ export function GradesTable() {
   };
 
   const handleDeleteItem = async () => {
-    if (!selectedItem) return; // Hier ist selectedItem noch null, die Logik wird über itemTypeToDelete gesteuert
+    if (!selectedItem) return;
     try {
       let endpoint: string;
       let body: string | null = null;
@@ -176,7 +176,6 @@ export function GradesTable() {
 
       if (itemTypeToDelete === 'subject') {
         if (isDeletingGradesOnly) {
-          // Annahme: Wenn gradesOnly, dann lösche Noten, aber nicht das Fach selbst
           endpoint = `/api/grades/bySubjectAndYear`;
           const subjectToDelete = findSubjectById(selectedItem?.id);
           body = JSON.stringify({ subjectId: selectedItem?.id, year: selectedItem?.jahr });
@@ -208,7 +207,7 @@ export function GradesTable() {
       setSelectedItem(null);
       setIsDeleteDialogOpen(false);
       setIsDeletingGradesOnly(false);
-      setItemTypeToDelete(null); // State zurücksetzen
+      setItemTypeToDelete(null);
     }
   };
 
@@ -285,7 +284,7 @@ export function GradesTable() {
   const handleEditItem = () => {
     if (!selectedItem) return;
     setSelectedItem(null);
-    
+
     if (selectedItem.type === 'grade') {
       const gradeToEdit = findGradeById(selectedItem.id);
       if (gradeToEdit) {
@@ -300,7 +299,7 @@ export function GradesTable() {
       }
     }
   };
-  
+
   useEffect(() => {
     if (selectedItem && dropdownRef.current) {
       const dropdownElement = dropdownRef.current;
@@ -329,33 +328,33 @@ export function GradesTable() {
   }
 
   if (error) {
-    return <div className="text-red-500 text-center">Fehler: {error}</div>;
+    return <div className="text-red-500 text-center">Error: {error}</div>;
   }
 
   if (yearData.length === 0) {
-    return <div className="text-center text-gray-500">Noch keine Noten vorhanden. Fügen Sie über den Button eine hinzu!</div>;
+    return <div className="text-center">No grades yet. Add them now!</div>;
   }
 
   return (
     <div ref={wrapperRef}>
       {yearData.map((yearEntry) => (
-        <div key={yearEntry.jahr} className="bg-white rounded-lg shadow-md p-4 mb-8">
-          <h2 className="text-2xl font-bold mb-4">Jahr: {yearEntry.jahr}</h2>
+        <div key={yearEntry.jahr} className="rounded-lg shadow-md p-4 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Year: {yearEntry.jahr}</h2>
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-left">Fach</TableHead>
+                <TableHead className="text-left">Subject</TableHead>
                 {Array.from({ length: yearEntry.maxNoten }, (_, i) => (
-                  <TableHead key={`note-header-${i}`} className="text-right w-32">Note {i + 1}</TableHead>
+                  <TableHead key={`note-header-${i}`} className="text-right w-32">Grade {i + 1}</TableHead>
                 ))}
-                <TableHead className="text-right w-32">Durchschnitt</TableHead>
+                <TableHead className="text-right w-32">Average</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {yearEntry.subjects.map((subject) => (
                 <TableRow key={`${yearEntry.jahr}-${subject.id}`}>
                   <TableCell
-                    className="text-left relative cursor-pointer hover:bg-gray-100"
+                    className="text-left relative cursor-pointer"
                     onClick={(e) => handleItemClick(e, 'subject', subject.id, yearEntry.jahr)}
                   >
                     {subject.fach}
@@ -365,7 +364,7 @@ export function GradesTable() {
                     return (
                       <TableCell
                         key={`${subject.id}-note-${i}`}
-                        className="text-right relative cursor-pointer hover:bg-gray-100"
+                        className="text-right relative cursor-pointer"
                         onClick={(e) => {
                           if (grade) {
                             handleItemClick(e, 'grade', grade.id);
@@ -380,7 +379,7 @@ export function GradesTable() {
                 </TableRow>
               ))}
               <TableRow className="font-bold">
-                <TableCell className="text-left">Gesamtjahresdurchschnitt</TableCell>
+                <TableCell className="text-left">Yearly average</TableCell>
                 {Array.from({ length: yearEntry.maxNoten }).map((_, i) => (
                   <TableCell key={`total-avg-filler-${i}`} className="text-right"></TableCell>
                 ))}
@@ -392,13 +391,13 @@ export function GradesTable() {
       ))}
 
       {selectedItem && (
-        <div 
+        <div
           ref={dropdownRef}
-          style={{ 
-            position: 'fixed', 
-            top: selectedItem.y, 
-            left: selectedItem.x, 
-            zIndex: 1000 
+          style={{
+            position: 'fixed',
+            top: selectedItem.y,
+            left: selectedItem.x,
+            zIndex: 1000
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -421,13 +420,13 @@ export function GradesTable() {
           />
         </div>
       )}
-      
+
       <DeleteDialog
         isOpen={isDeleteDialogOpen}
         onConfirm={handleDeleteItem}
         onCancel={() => {
-            setIsDeleteDialogOpen(false);
-            setItemTypeToDelete(null);
+          setIsDeleteDialogOpen(false);
+          setItemTypeToDelete(null);
         }}
         itemType={itemTypeToDelete || ''}
         isDeletingGradesOnly={isDeletingGradesOnly}

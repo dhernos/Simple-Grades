@@ -1,10 +1,8 @@
 // src/app/api/subjects/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { protectedRoute } from "@/lib/protected-api"; // Importiere den Wrapper
-
-const prisma = new PrismaClient();
 
 // Hier ist dein GET-Handler. Er ist jetzt viel sauberer,
 // da die Authentifizierung vom Wrapper übernommen wird.

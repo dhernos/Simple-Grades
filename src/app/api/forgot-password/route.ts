@@ -1,11 +1,9 @@
 // src/app/api/forgot-password/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma"
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 // Konfiguration des E-Mail-Transporters
 const transporter = nodemailer.createTransport({

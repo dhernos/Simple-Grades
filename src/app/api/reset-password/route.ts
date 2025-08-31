@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma"
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -22,11 +20,10 @@ export async function POST(req: Request) {
     });
 
     let user = null;
-    // Durchlaufen Sie die Benutzer, um den passenden Token zu finden
     for (const u of usersWithTokens) {
       if (u.passwordResetToken && await bcrypt.compare(token, u.passwordResetToken)) {
         user = u;
-        break; // Sobald der Benutzer gefunden ist, brechen wir die Schleife ab
+        break;
       }
     }
 
@@ -34,12 +31,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Ungültiger oder abgelaufener Token." }, { status: 400 });
     }
 
-    // Prüfen Sie manuell das Ablaufdatum
     if (user.passwordResetExpires && user.passwordResetExpires.getTime() < Date.now()) {
       return NextResponse.json({ message: "Ungültiger oder abgelaufener Token." }, { status: 400 });
     }
 
-    // Passwort hashen und aktualisieren
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.update({

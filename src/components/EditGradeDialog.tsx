@@ -1,5 +1,3 @@
-// src/components/EditGradeDialog.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -21,7 +19,6 @@ export function EditGradeDialog({ isOpen, onClose, onSave, gradeId, initialNote,
   const [note, setNote] = useState<number>(initialNote);
   const [jahr, setJahr] = useState<number>(initialJahr);
 
-  // Setzt die Werte zurück, wenn sich die initiale Note ändert
   useEffect(() => {
     setNote(initialNote);
     setJahr(initialJahr);
@@ -35,15 +32,15 @@ export function EditGradeDialog({ isOpen, onClose, onSave, gradeId, initialNote,
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Note bearbeiten</DialogTitle>
+          <DialogTitle>Edit grade</DialogTitle>
           <DialogDescription>
-            Ändere die Note oder das Jahr. Klicke auf "Speichern", wenn du fertig bist.
+            Edit the grade or year. Select &quot;Save&quot; to save your changes.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="note" className="text-right">
-              Note
+              Grade
             </Label>
             <Input
               id="note"
@@ -55,7 +52,7 @@ export function EditGradeDialog({ isOpen, onClose, onSave, gradeId, initialNote,
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="jahr" className="text-right">
-              Jahr
+              Year
             </Label>
             <Input
               id="jahr"
@@ -67,8 +64,8 @@ export function EditGradeDialog({ isOpen, onClose, onSave, gradeId, initialNote,
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="cursor-pointer">Abbrechen</Button>
-          <Button onClick={handleSave} className="cursor-pointer">Speichern</Button>
+          <Button variant="outline" onClick={onClose} className="cursor-pointer">Cancel</Button>
+          <Button onClick={handleSave} className="cursor-pointer">Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

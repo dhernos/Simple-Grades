@@ -4,13 +4,13 @@ import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SkeletonGradesTable() {
-  const years = [2023, 2024]; // Dummy-Jahre zur Anzeige des Skeletons
+  const years = [2023, 2024];
   const subjects = ["Mathematik", "Deutsch", "Englisch"];
 
   return (
     <>
       {years.map((year, yearIndex) => (
-        <div key={year} className="bg-white rounded-lg shadow-md p-4 mb-8">
+        <div key={year} className="rounded-lg shadow-md p-4 mb-8">
           <div className="mb-4">
             <Skeleton className="h-8 w-40" />
           </div>

@@ -43,7 +43,7 @@ export default function TimetablePage() {
   const toggleEditMode = () => {
     setEditMode(!editMode);
   };
-  
+
   const handleSubjectAdded = () => {
     setRefreshSubjectsKey(prevKey => prevKey + 1);
   };
@@ -52,7 +52,7 @@ export default function TimetablePage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2 text-gray-500">Lade Fächer...</span>
+        <span className="ml-2">Loading Subjects...</span>
       </div>
     );
   }
@@ -66,29 +66,29 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Stundenplan</h1>
+        <h1 className="text-2xl font-bold">Timetable</h1>
         <div className="flex gap-2">
           {editMode && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button disabled={isSaving} className="cursor-pointer">Fach hinzufügen</Button>
+                <Button disabled={isSaving} className="cursor-pointer">Add Subject</Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Fach hinzufügen</DialogTitle>
+                  <DialogTitle>Add Subject</DialogTitle>
                 </DialogHeader>
                 <AddSubject onSubjectAdded={handleSubjectAdded} />
               </DialogContent>
             </Dialog>
           )}
           <Button onClick={toggleEditMode} disabled={isSaving} className="cursor-pointer">
-            {isSaving ? "Speichern..." : editMode ? "Bearbeitung beenden" : "Bearbeiten"}
+            {isSaving ? "Saving..." : editMode ? "Exit editing mode" : "Edit"}
           </Button>
         </div>
       </div>
-      
+
       <Timetable editMode={editMode} subjects={subjects} setIsSaving={setIsSaving} />
     </div>
   );

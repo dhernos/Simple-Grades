@@ -48,9 +48,9 @@ export function ForgotPasswordDialog({ isOpen, onClose }: ForgotPasswordDialogPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Passwort vergessen?</DialogTitle>
+          <DialogTitle>Forgot Password?</DialogTitle>
           <DialogDescription>
-            Gib deine E-Mail-Adresse ein, um einen Link zum Zurücksetzen deines Passworts zu erhalten.
+            Enter the E-Mail adress connected to your account and we will send you a reset link.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -74,10 +74,10 @@ export function ForgotPasswordDialog({ isOpen, onClose }: ForgotPasswordDialogPr
           {error && <p className="text-center text-red-500">{error}</p>}
           <DialogFooter>
             <Button variant="outline" onClick={onClose} disabled={loading} type="button" className="cursor-pointer">
-              Abbrechen
+              Cancel
             </Button>
             <Button type="submit" disabled={loading} className="cursor-pointer">
-              {loading ? "Senden..." : "Senden"}
+              {loading ? "Sending..." : "Send"}
             </Button>
           </DialogFooter>
         </form>

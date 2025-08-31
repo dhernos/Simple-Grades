@@ -8,13 +8,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { ForgotPasswordDialog } from "@/components/forgot-password-dialog"; 
-import ThemeToggle from "@/components/theme-toggle";
+import { ForgotPasswordDialog } from "@/components/forgot-password-dialog";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "/timetable";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +22,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Zustand für den Dialog
   const [isForgotPasswordDialogOpen, setIsForgotPasswordDialogOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,11 +49,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Anmelden</CardTitle>
-          <CardDescription>Melde dich bei deinem Konto an</CardDescription>
+          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ThemeToggle></ThemeToggle>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="mb-2 block text-sm font-bold">
@@ -75,7 +72,7 @@ export default function LoginPage() {
             </div>
             <div className="mb-6">
               <label htmlFor="password" className="mb-2 block text-sm font-bold">
-                Passwort:
+                Password:
               </label>
               <div className="relative">
                 <Input
@@ -112,39 +109,36 @@ export default function LoginPage() {
                   disabled={loading}
                 />
                 <label htmlFor="rememberMe" className="text-sm cursor-pointer">
-                  Angemeldet bleiben
+                  Remember me
                 </label>
               </div>
-              {/* Ändere den Link-Handler */}
               <button
                 type="button"
                 onClick={() => setIsForgotPasswordDialogOpen(true)}
                 className="text-sm font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
               >
-                Passwort vergessen?
+                Forgot password?
               </button>
             </div>
-            
+
             {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-            
+
             <Button
               type="submit"
               className="w-full cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Anmelden..." : "Anmelden"}
+              {loading ? "Loggin in..." : "Login"}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm">
-            Noch kein Konto?{" "}
+            No Account yet?{" "}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Jetzt registrieren
+              Sign up now!
             </Link>
           </p>
         </CardContent>
       </Card>
-      
-      {/* Füge die neue Dialog-Komponente hinzu */}
       <ForgotPasswordDialog
         isOpen={isForgotPasswordDialogOpen}
         onClose={() => setIsForgotPasswordDialogOpen(false)}
