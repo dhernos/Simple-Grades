@@ -56,7 +56,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postadmin:YOUR_POSTGRES_PASSWORD@db:5432/grades
       - NEXTAUTH_SECRET=BASE64_STRING
-      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL=http://YOUR_DOMAIN/IP:3000
       - AUTH_TRUST_HOST=true
       - REDIS_URL=redis://:YOUR_REDIS_PASSWORD@redis:6379
       #optional:
