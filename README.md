@@ -1,12 +1,12 @@
 ### Simple Grades
 
-**Simple Grades** is a web application designed to help students track and manage their academic grades and timetables. It provides a clean and intuitive interface to monitor progress and organize daily schedules efficiently.
+**Simple Grades** is a web application designed for personal use to track and manage academic grades and timetables. It provides a clean and intuitive interface to monitor progress and organize daily schedules efficiently.
 
 #### Features
 
 * **Grade Management:** Add, edit, and delete grades to calculate subject and overall averages.
 * **Timetable Planner:** Create and manage your weekly class schedule.
-* **User Authentication:** Secure login and session management.
+* **Calendar:** Built-in calendar to keep track of your next exams.
 * **Responsive Design:** Optimized for a seamless experience on both desktop and mobile devices.
 
 #### Technologies
@@ -25,13 +25,14 @@
 
 * **Node.js** (version 18 or higher)
 * **npm** (Node Package Manager)
-OR
+
+### Or
 * **Docker & Docker Compose** (for simplified setup)
 
 #### Manual Setup
 
 1.  Clone the repository:
-    `git clone https://github.com/dhernos/grades.git`
+    `git clone https://github.com/dhernos/Simple-Grades.git`
 
 2.  Install dependencies:
     `npm install`
