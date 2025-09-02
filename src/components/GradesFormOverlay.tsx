@@ -25,7 +25,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
     try {
       const response = await fetch('/api/subjects');
       if (!response.ok) {
-        throw new Error('Fehler beim Laden der Fächer.');
+        throw new Error('Error Fetching Subjects.');
       }
       const data: Subject[] = await response.json();
       setSubjects(data);
@@ -47,7 +47,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
     setSuccess(null);
 
     if (!newSubjectName) {
-      setError("Bitte geben Sie einen Fachnamen ein.");
+      setError("Please enter a subject name.");
       return;
     }
 
@@ -60,13 +60,13 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Hinzufügen des Fachs.');
+        throw new Error(errorData.error || 'Error adding the subject.');
       }
 
       const newSubject: Subject = await response.json();
       setSubjects([...subjects, newSubject]);
       setNewSubjectName("");
-      setSuccess(`Fach "${newSubject.name}" wurde hinzugefügt.`);
+      setSuccess(`Subject "${newSubject.name}" added.`);
       setSelectedSubjectId(newSubject.id);
     } catch (err) {
       setError((err as Error).message);
@@ -79,7 +79,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
     setSuccess(null);
 
     if (!selectedSubjectId || !note || !jahr) {
-      setError("Bitte wählen Sie ein Fach aus und geben Sie Note und Jahr ein.");
+      setError("Please fill out all fields.");
       return;
     }
 
@@ -96,10 +96,10 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Speichern der Note.');
+        throw new Error(errorData.error || 'Error saving grade.');
       }
 
-      setSuccess(`Note "${note}" für das Fach wurde gespeichert.`);
+      setSuccess(`Grade saved.`);
       onGradeAdded();
       setNote(null);
       setJahr(null);

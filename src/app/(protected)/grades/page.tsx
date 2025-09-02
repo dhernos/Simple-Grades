@@ -21,7 +21,7 @@ export default function GradesPage() {
           <Dialog>
             <DialogTrigger asChild>
               {/* Angepasste Klassen für den Button */}
-              <Button className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">Add grades</Button>
+              <Button className="cursor-pointer flex flex-col sm:flex-row gap-2 w-full sm:w-auto">Add grades</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
