@@ -1,12 +1,12 @@
 ### Simple Grades
 
-**Simple Grades** is a web application designed to help students track and manage their academic grades and timetables. It provides a clean and intuitive interface to monitor progress and organize daily schedules efficiently.
+**Simple Grades** is a web application designed for personal use to track and manage academic grades and timetables. It provides a clean and intuitive interface to monitor progress and organize daily schedules efficiently.
 
 #### Features
 
 * **Grade Management:** Add, edit, and delete grades to calculate subject and overall averages.
 * **Timetable Planner:** Create and manage your weekly class schedule.
-* **User Authentication:** Secure login and session management.
+* **Calendar:** Built-in calendar to keep track of your next exams.
 * **Responsive Design:** Optimized for a seamless experience on both desktop and mobile devices.
 
 #### Technologies
@@ -25,17 +25,19 @@
 
 * **Node.js** (version 18 or higher)
 * **npm** (Node Package Manager)
-* **Docker & Docker Compose** (optional, for simplified setup)
+
+### Or
+* **Docker & Docker Compose** (for simplified setup)
 
 #### Manual Setup
 
 1.  Clone the repository:
-    `git clone [your-repo-url]`
+    `git clone https://github.com/dhernos/Simple-Grades.git`
 
 2.  Install dependencies:
     `npm install`
 
-3.  Set up your environment variables (e.g., database connection string) in a `.env.local` file.
+3.  Set up your environment variables in a `.env` file.
 
 4.  Run the development server:
     `npm run dev`
@@ -54,7 +56,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postadmin:YOUR_POSTGRES_PASSWORD@db:5432/grades
       - NEXTAUTH_SECRET=BASE64_STRING
-      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL=http://YOUR_DOMAIN/IP:3000
       - AUTH_TRUST_HOST=true
       - REDIS_URL=redis://:YOUR_REDIS_PASSWORD@redis:6379
       #optional:
