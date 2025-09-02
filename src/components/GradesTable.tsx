@@ -335,11 +335,11 @@ export function GradesTable() {
   }
 
   return (
-    <div ref={wrapperRef}>
+    <div ref={wrapperRef} className="overflow-x-auto">
       {yearData.map((yearEntry) => (
         <div key={yearEntry.jahr} className="rounded-lg shadow-md p-4 mb-8">
           <h2 className="text-2xl font-bold mb-4">Year: {yearEntry.jahr}</h2>
-          <Table className="table-fixed">
+          <Table className="min-w-[500px] sm:min-w-full table-fixed">
             <TableHeader>
               <TableRow>
                 <TableHead className="text-left">Subject</TableHead>

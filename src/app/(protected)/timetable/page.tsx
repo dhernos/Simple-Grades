@@ -66,14 +66,21 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Timetable</h1>
-        <div className="flex gap-2">
+    <div className="mx-auto p-4 sm:p-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 space-y-4 sm:space-y-0">
+        <h1 className="text-3xl sm:text-4xl font-bold">Timetable</h1>
+
+        {/* Angepasster Container für die Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {editMode && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button disabled={isSaving} className="cursor-pointer">Add Subject</Button>
+                <Button
+                  disabled={isSaving}
+                  className="w-full sm:w-auto cursor-pointer"
+                >
+                  Add Subject
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -83,7 +90,11 @@ export default function TimetablePage() {
               </DialogContent>
             </Dialog>
           )}
-          <Button onClick={toggleEditMode} disabled={isSaving} className="cursor-pointer">
+          <Button
+            onClick={toggleEditMode}
+            disabled={isSaving}
+            className="w-full sm:w-auto cursor-pointer"
+          >
             {isSaving ? "Saving..." : editMode ? "Exit editing mode" : "Edit"}
           </Button>
         </div>

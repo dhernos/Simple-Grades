@@ -47,7 +47,7 @@ function LoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
+      <Card className="w-11/12 sm:w-full sm:max-w-md mx-auto p-4 space-y-4 shadow-lg rounded-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Login</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>

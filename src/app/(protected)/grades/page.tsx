@@ -13,13 +13,15 @@ export default function GradesPage() {
   };
 
   return (
-    <div className="flex flex-col items-center p-8">
+    <div className="flex flex-col items-center p-4 sm:p-8">
       <div className="w-full max-w-5xl text-center mb-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Your grades</h1>
+        {/* Angepasste Klassen für das Layout */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 space-y-4 sm:space-y-0">
+          <h1 className="text-3xl sm:text-4xl font-bold">Your grades</h1>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="cursor-pointer">Add grades</Button>
+              {/* Angepasste Klassen für den Button */}
+              <Button className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">Add grades</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
