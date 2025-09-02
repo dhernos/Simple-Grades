@@ -25,17 +25,18 @@
 
 * **Node.js** (version 18 or higher)
 * **npm** (Node Package Manager)
-* **Docker & Docker Compose** (optional, for simplified setup)
+OR
+* **Docker & Docker Compose** (for simplified setup)
 
 #### Manual Setup
 
 1.  Clone the repository:
-    `git clone [your-repo-url]`
+    `git clone https://github.com/dhernos/grades.git`
 
 2.  Install dependencies:
     `npm install`
 
-3.  Set up your environment variables (e.g., database connection string) in a `.env.local` file.
+3.  Set up your environment variables in a `.env` file.
 
 4.  Run the development server:
     `npm run dev`
