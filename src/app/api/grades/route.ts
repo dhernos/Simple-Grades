@@ -9,7 +9,7 @@ const getGradesHandler = async (req: Request, session: Session) => {
   try {
     const userId = session.user.id;
     const grades = await prisma.noten.findMany({
-      where: { userId }, // WICHTIG: Filtere die Noten nach der Benutzer-ID
+      where: { userId },
       include: { subject: true },
       orderBy: [
         { jahr: 'asc' },
@@ -18,7 +18,7 @@ const getGradesHandler = async (req: Request, session: Session) => {
     });
     return NextResponse.json(grades);
   } catch (error) {
-    console.error('Fehler beim Abrufen der Noten:', error);
+    console.error('Error fetching grades:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 };
@@ -30,7 +30,7 @@ const postGradeHandler = async (request: Request, session: Session) => {
   try {
     const newGradeData = await request.json();
     if (!newGradeData.subject?.id || newGradeData.note === undefined || newGradeData.jahr === undefined) {
-      return new NextResponse('Missing required data (subject, note, or jahr).', { status: 400 });
+      return new NextResponse('Missing required data (subject, grade, or year).', { status: 400 });
     }
 
     const newGrade = await prisma.noten.create({
@@ -49,7 +49,7 @@ const postGradeHandler = async (request: Request, session: Session) => {
 
     return NextResponse.json(newGrade, { status: 201 });
   } catch (error) {
-    console.error('Fehler beim Erstellen der Note:', error);
+    console.error('Error creating grade:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 };

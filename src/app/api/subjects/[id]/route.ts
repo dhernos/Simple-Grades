@@ -13,7 +13,7 @@ const putSubjectHandler = async (
   const { name } = await req.json();
 
   if (!name || typeof name !== 'string') {
-    return NextResponse.json({ error: 'Ungültiger Fachname' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid Subjectname' }, { status: 400 });
   }
 
   try {
@@ -28,8 +28,8 @@ const putSubjectHandler = async (
     });
     return NextResponse.json(updatedSubject);
   } catch (error) {
-    console.error('Fehler beim Aktualisieren des Fachs:', error);
-    return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
+    console.error('Error updating subject:', error);
+    return NextResponse.json({ error: 'Internal Servererror' }, { status: 500 });
   }
 }
 
@@ -51,8 +51,8 @@ const deleteSubjectHandler = async (
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error('Fehler beim Löschen des Fachs:', error);
-    return NextResponse.json({ error: 'Fach nicht gefunden' }, { status: 404 });
+    console.error('Error deleting subject:', error);
+    return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
   }
 }
 

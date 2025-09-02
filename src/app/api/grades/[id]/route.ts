@@ -29,9 +29,9 @@ const putHandler = async (
 
         return NextResponse.json(updatedGrade);
     } catch (error) {
-        console.error('Fehler beim Aktualisieren der Note:', error);
+        console.error('Error updating your grade:', error);
         // Prisma wirft einen Fehler, wenn die ID nicht gefunden wird (auch wenn userId nicht passt)
-        return new NextResponse(`Note mit ID ${id} nicht gefunden oder Sie sind nicht berechtigt, diese zu bearbeiten.`, { status: 404 });
+        return new NextResponse(`Grade with ID ${id} not found or permission denied.`, { status: 404 });
     }
 }
 
@@ -52,10 +52,10 @@ const deleteHandler = async (
             },
         });
 
-        return new NextResponse(`Note mit ID ${id} wurde gelöscht.`, { status: 200 });
+        return new NextResponse(`Grade ID ${id} has been deleted.`, { status: 200 });
     } catch (error) {
-        console.error('Fehler beim Löschen der Note:', error);
-        return new NextResponse(`Note mit ID ${id} nicht gefunden oder Sie sind nicht berechtigt, diese zu löschen.`, { status: 404 });
+        console.error('Error deleting grade:', error);
+        return new NextResponse(`Grade with ID ${id} not found or permission denied.`, { status: 404 });
     }
 }
 

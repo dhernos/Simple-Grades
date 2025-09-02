@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           message:
-            "Falls eine E-Mail-Adresse mit uns verknüpft ist, haben wir einen Link zum Zurücksetzen des Passworts gesendet.",
+            "Verification Email has been sent.",
         },
         { status: 200 }
       );
@@ -55,13 +55,13 @@ export async function POST(req: Request) {
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: user.email,
-      subject: "Passwort zurücksetzen",
+      subject: "Reset your Password",
       html: `
-        <p>Hallo,</p>
-        <p>Du hast angefordert, dein Passwort zurückzusetzen. Klicke auf den folgenden Link, um dies zu tun:</p>
-        <p><a href="${resetUrl}">Passwort zurücksetzen</a></p>
-        <p>Dieser Link ist eine Stunde lang gültig.</p>
-        <p>Falls du dies nicht angefordert hast, ignoriere diese E-Mail.</p>
+        <p>Hello there,</p>
+        <p>Here is the link required to reset your passowrd:</p>
+        <p><a href="${resetUrl}">Reset Password</a></p>
+        <p>This link is valid for 60 Minutes.</p>
+        <p>If you didn't request a passowrd reset you can ignore this email.</p>
       `,
     };
 
@@ -70,12 +70,12 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         message:
-          "Falls eine E-Mail-Adresse mit uns verknüpft ist, haben wir einen Link zum Zurücksetzen des Passworts gesendet.",
+          "Verification Email has been sent.",
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Fehler beim Senden der Passwort-Reset-E-Mail:", error);
-    return NextResponse.json({ message: "Interner Serverfehler." }, { status: 500 });
+    console.error("Error sending Passwort-Reset-E-Mail:", error);
+    return NextResponse.json({ message: "Internal Servererror." }, { status: 500 });
   }
 }

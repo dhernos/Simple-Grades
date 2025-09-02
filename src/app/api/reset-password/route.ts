@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const { token, password } = await req.json();
 
     if (!token || !password) {
-      return NextResponse.json({ message: "Token und Passwort sind erforderlich." }, { status: 400 });
+      return NextResponse.json({ message: "Token and Password required." }, { status: 400 });
     }
 
     // Holen Sie alle Benutzer mit einem gültigen passwordResetToken
@@ -28,11 +28,11 @@ export async function POST(req: Request) {
     }
 
     if (!user) {
-      return NextResponse.json({ message: "Ungültiger oder abgelaufener Token." }, { status: 400 });
+      return NextResponse.json({ message: "Invalid or outdated Token." }, { status: 400 });
     }
 
     if (user.passwordResetExpires && user.passwordResetExpires.getTime() < Date.now()) {
-      return NextResponse.json({ message: "Ungültiger oder abgelaufener Token." }, { status: 400 });
+      return NextResponse.json({ message: "Invalid or outdated Token." }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,9 +46,9 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ message: "Passwort wurde erfolgreich zurückgesetzt." }, { status: 200 });
+    return NextResponse.json({ message: "Password reset successfull." }, { status: 200 });
   } catch (error) {
-    console.error("Fehler beim Zurücksetzen des Passworts:", error);
-    return NextResponse.json({ message: "Interner Serverfehler." }, { status: 500 });
+    console.error("Error resetting your password:", error);
+    return NextResponse.json({ message: "Internal Servererror." }, { status: 500 });
   }
 }

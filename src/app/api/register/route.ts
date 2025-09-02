@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { name, email, password } = await req.json()
 
     if (!email || !password) {
-      return NextResponse.json({ message: "E-Mail und Passwort sind erforderlich." }, { status: 400 })
+      return NextResponse.json({ message: "E-Mail and password required." }, { status: 400 })
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     })
 
     if (existingUser) {
-      return NextResponse.json({ message: "Benutzer mit dieser E-Mail existiert bereits." }, { status: 409 })
+      return NextResponse.json({ message: "User already exists." }, { status: 409 })
     }
 
     // Passwort hashen
@@ -30,9 +30,9 @@ export async function POST(req: Request) {
       }
     })
 
-    return NextResponse.json({ message: "Benutzer erfolgreich registriert.", user: newUser }, { status: 201 })
+    return NextResponse.json({ message: "Registration successfull.", user: newUser }, { status: 201 })
   } catch (error) {
-    console.error("Registrierungsfehler:", error)
-    return NextResponse.json({ message: "Interner Serverfehler." }, { status: 500 })
+    console.error("Error:", error)
+    return NextResponse.json({ message: "Internal Servererror." }, { status: 500 })
   }
 }

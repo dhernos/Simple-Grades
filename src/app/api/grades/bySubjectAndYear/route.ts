@@ -28,8 +28,8 @@ const deleteGradesBySubjectAndYearHandler = async (req: Request, session: Sessio
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error('Fehler beim Löschen der Noten:', error);
-    return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
+    console.error('Error deleting the grades:', error);
+    return NextResponse.json({ error: 'Internal Servererror' }, { status: 500 });
   }
 };
 
