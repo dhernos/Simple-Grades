@@ -52,7 +52,7 @@ export default function TimetablePage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading Subjects...</span>
+        <span className="ml-2">Loading timetable...</span>
       </div>
     );
   }

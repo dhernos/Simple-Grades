@@ -3,8 +3,13 @@ import prisma from "@/lib/prisma"
 import { protectedRouteWithParams } from "@/lib/protected-api";
 import { Session } from 'next-auth';
 
-const putSubjectHandler = async (req: Request, session: Session, params: { id: string }) => {
-  const { id } = params;
+// Handler für PUT
+const putSubjectHandler = async (
+  req: Request,
+  session: Session,
+  context: { params: { id: string } }
+): Promise<Response> => {
+  const { id } = context.params;
   const { name } = await req.json();
 
   if (!name || typeof name !== 'string') {
@@ -28,8 +33,13 @@ const putSubjectHandler = async (req: Request, session: Session, params: { id: s
   }
 }
 
-const deleteSubjectHandler = async (req: Request, session: Session, params: { id: string }) => {
-  const { id } = params;
+// Handler für DELETE
+const deleteSubjectHandler = async (
+  req: Request,
+  session: Session,
+  context: { params: { id: string } }
+): Promise<Response> => {
+  const { id } = context.params;
 
   try {
     await prisma.subject.delete({

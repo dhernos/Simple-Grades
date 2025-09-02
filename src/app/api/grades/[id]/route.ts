@@ -4,8 +4,12 @@ import { protectedRouteWithParams } from "@/lib/protected-api";
 import { Session } from 'next-auth';
 
 // PUT-Methode: Aktualisiert eine Note in der Datenbank
-const putHandler = async (request: Request, session: Session, params: { id: string }) => {
-    const { id } = params;
+const putHandler = async (
+    request: Request,
+    session: Session,
+    context: { params: { id: string } }
+): Promise<Response> => {
+    const { id } = context.params;
     const userId = session.user.id; // Holen wir uns die sichere Benutzer-ID aus der Session
 
     try {
@@ -32,8 +36,12 @@ const putHandler = async (request: Request, session: Session, params: { id: stri
 }
 
 // DELETE-Methode: Löscht eine Note aus der Datenbank
-const deleteHandler = async (request: Request, session: Session, params: { id: string }) => {
-    const { id } = params;
+const deleteHandler = async (
+    request: Request,
+    session: Session,
+    context: { params: { id: string } }
+): Promise<Response> => {
+    const { id } = context.params;
     const userId = session.user.id; // Auch hier verwenden wir die sichere Benutzer-ID
 
     try {

@@ -21,6 +21,7 @@ const getSessionsHandler = async (req: Request, session: Session) => {
 
         return {
           sessionId,
+          userId: sessionData.userId,
           ...sessionData,
           ttlInSeconds: ttl,
         };

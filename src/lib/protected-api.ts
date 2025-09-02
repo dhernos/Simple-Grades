@@ -8,11 +8,12 @@ type ProtectedHandlerWithoutParams = (
   session: Session
 ) => Promise<NextResponse>;
 
-type ProtectedHandlerWithParams = (
+// Typ für Handler mit Context (params als Promise)
+type ProtectedHandlerWithContext = (
   req: Request,
   session: Session,
-  params: { id: string }
-) => Promise<Response | NextResponse>;
+  context: { params: { id: string } }
+) => Promise<Response>;
 
 // Wrapper für Handler ohne Params
 export const protectedRoute = (handler: ProtectedHandlerWithoutParams) => {
@@ -31,9 +32,12 @@ export const protectedRoute = (handler: ProtectedHandlerWithoutParams) => {
   };
 };
 
-// Wrapper für Handler mit Params
-export const protectedRouteWithParams = (handler: ProtectedHandlerWithParams) => {
-  return async (req: Request, context: { params: { id: string } }) => {
+// Wrapper für Handler mit Context (params als Promise)
+export const protectedRouteWithParams = (handler: ProtectedHandlerWithContext) => {
+  return async (
+    req: Request,
+    context: { params: Promise<{ id: string }> }
+  ): Promise<Response> => {
     const session = await getServerSession(authOptions);
 
     if (!session || "error" in session) {
@@ -43,14 +47,7 @@ export const protectedRouteWithParams = (handler: ProtectedHandlerWithParams) =>
       );
     }
 
-    const rawId = context.params.id;
-    const id = Array.isArray(rawId) ? rawId[0] : rawId;
-
-    if (!id) {
-      return NextResponse.json({ error: "Missing param id" }, { status: 400 });
-    }
-
-    // Call the provided handler with the extracted parameters.
-    return handler(req, session, { id });
+    const params = await context.params;
+    return handler(req, session, { params });
   };
 };

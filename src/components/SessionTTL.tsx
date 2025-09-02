@@ -1,8 +1,12 @@
 import React from 'react';
 
-const SessionTTL = ({ ttlInSeconds }) => {
+interface SessionTTLProps {
+  ttlInSeconds: number | undefined;
+}
+
+const SessionTTL: React.FC<SessionTTLProps> = ({ ttlInSeconds }) => {
   if (ttlInSeconds === undefined || ttlInSeconds < 0) {
-    return null; // Zeigt nichts an, wenn TTL ungültig ist
+    return null;
   }
 
   const days = Math.floor(ttlInSeconds / (60 * 60 * 24));
