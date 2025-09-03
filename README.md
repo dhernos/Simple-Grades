@@ -39,7 +39,24 @@
 
 3.  Set up your environment variables in a `.env` file.
 
-4.  Run the development server:
+```
+DATABASE_URL=postgresql://POSTGRESUSER:YOUR_POSTGRES_PASSWORD@POSTGRES_IP:5433/TABLENAME
+NEXTAUTH_SECRET=BASE64_STRING
+AUTH_TRUST_HOST=true
+NEXTAUTH_URL=http://localhost:3000
+
+REDIS_URL="redis://REDIS_USERNAME:YOUR_REDIS_PASSWORD@REDIS_IP:6379"
+
+#OPTIONAL:
+EMAIL_SERVER_HOST=
+EMAIL_SERVER_PORT=
+EMAIL_SERVER_SECURE=
+EMAIL_SERVER_USER=
+EMAIL_SERVER_PASSWORD=
+EMAIL_FROM=
+```
+
+5.  Run the development server:
     `npm run dev`
 
 Open `http://localhost:3000` in your browser.
