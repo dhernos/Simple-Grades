@@ -1,49 +1,27 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/router";
 
 export default function LogOut() {
+  // Use the useRouter from 'next-intl/navigation'
   const router = useRouter();
-  const { data: session, status } = useSession();
 
   useEffect(() => {
-    // Greife auf session.user.sessionId zu, nicht auf session.sessionId
-    if (status === "authenticated" && session?.user?.sessionId) {
-      const handleLogout = async () => {
-        try {
-          const response = await fetch('/api/sessions', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId: session.user.sessionId }), // Korrekter Zugriffspfad
-          });
+    // The locale is automatically included in the path by next-intl's middleware.
+    // We get the current locale from the router object.
+    // Construct the callback URL using the current locale and the login page path.
+    const callbackUrl = `/login`;
 
-          if (response.ok) {
-            console.log('Redis session deleted successfully.');
-          } else {
-            console.error('Failed to delete Redis key on the server.');
-          }
-        } catch (error) {
-          console.error('An error occurred during API call:', error);
-        } finally {
-          await signOut({ callbackUrl: "/login" });
-        }
-      };
-
-      handleLogout();
-    } else if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, session, router]);
-
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <h1 className="text-xl">Loading...</h1>
-      </div>
-    );
-  }
+    // Call signOut with the constructed callbackUrl.
+    // The redirect: false option prevents next-auth from handling the redirect itself,
+    // allowing next-intl's middleware to handle it correctly.
+    signOut({ callbackUrl, redirect: false }).then(() => {
+      // After sign out is complete, use the router from next-intl to push the user to the login page.
+      router.push(callbackUrl);
+    });
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
