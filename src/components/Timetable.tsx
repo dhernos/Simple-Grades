@@ -140,7 +140,7 @@ export function Timetable({ editMode, subjects, setIsSaving }: TimetableProps) {
   };
 
   return (
-    <div className="rounded-lg shadow-md mb-8 overflow-x-auto">
+    <div className="rounded-lg shadow-md mb-8">
       <Table className="min-w-max">
         <TableHeader>
           <TableRow>

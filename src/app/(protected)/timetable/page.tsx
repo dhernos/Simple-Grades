@@ -69,8 +69,6 @@ export default function TimetablePage() {
     <div className="mx-auto p-4 sm:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 space-y-4 sm:space-y-0">
         <h1 className="text-3xl sm:text-4xl font-bold">Timetable</h1>
-
-        {/* Angepasster Container für die Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           {editMode && (
             <Dialog>

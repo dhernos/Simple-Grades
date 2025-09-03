@@ -79,8 +79,8 @@ export default function AdminSessionsPage() {
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Active Sessions</h1>
       <p className="mb-4">This page displays all active sessions stored in Redis.</p>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border">
+      <div className="overflow-x-auto pb-4">
+        <table className="min-w-full border pb">
           <thead>
             <tr>
               <th className="py-2 px-4 border-b">Session ID</th>

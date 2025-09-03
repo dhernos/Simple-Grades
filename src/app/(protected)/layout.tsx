@@ -1,12 +1,11 @@
 "use client"
 
 import { useSession } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoadingPage from '@/components/loading-page';
 import Link from 'next/link';
 import { SidebarCalendar } from "@/components/SidebarCalendar";
-import { useSwipeable } from "react-swipeable";
 import { Menu, X, Calendar, NotebookText, Settings } from "lucide-react";
 
 export default function ProtectedLayout({
@@ -14,17 +13,10 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { status, data: session } = useSession();
-  const router = useRouter();
+  const { status } = useSession();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (status === "unauthenticated" || session?.error) {
-      console.log("ProtectedLayout: Session invalid, redirecting.");
-      router.push("/logout");
-    }
-  }, [status, session?.error, router]);
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -34,31 +26,14 @@ export default function ProtectedLayout({
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handlersMain = useSwipeable({
-    onSwipedLeft: () => setIsSidebarOpen(false),
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
-
-  const handlersEdge = useSwipeable({
-    onSwipedRight: () => setIsSidebarOpen(true),
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
-
   if (status === "loading") {
     return <LoadingPage />;
   }
 
   if (status === "authenticated") {
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
-        <div
-          className="fixed inset-y-0 left-0 w-8 z-50 lg:hidden cursor-pointer"
-          {...handlersEdge}
-        />
-
-        <header className="fixed w-full top-0 z-50 py-4 shadow-lg backdrop-blur-sm bg-background/80">
+      <div className="flex flex-col min-h-screen">
+        <header className="fixed w-full top-0 z-50 py-5 shadow-lg backdrop-blur-sm bg-background/80">
           <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <div className="lg:hidden mr-4">
@@ -91,15 +66,19 @@ export default function ProtectedLayout({
           </nav>
         </header>
 
-        <div className="flex flex-grow mt-20 relative" {...handlersMain}>
+        <div className="flex flex-grow mt-20 relative">
           <aside
             className={`
-              fixed lg:static w-72 h-full lg:h-auto p-4 border-r
+              fixed w-75 p-4 border-r
               transform transition-transform duration-300 ease-in-out z-40
               bg-background
               ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
               lg:translate-x-0
-              lg:w-75
+              max-h-full
+              top-20
+              bottom-16
+              lg:bottom-0
+              overflow-y-auto
             `}
           >
             <SidebarCalendar />
@@ -111,8 +90,7 @@ export default function ProtectedLayout({
               onClick={() => setIsSidebarOpen(false)}
             />
           )}
-
-          <main className="flex-grow p-4 sm:p-6 lg:p-8 mx-auto w-full pb-20">
+          <main className="flex-grow p-4 sm:p-6 lg:p-8 mx-auto w-full pb-20 overflow-auto lg:pl-75">
             {children}
           </main>
         </div>

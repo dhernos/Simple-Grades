@@ -112,8 +112,11 @@ export function SidebarCalendar() {
     };
 
     return (
-        <div className="p-4 space-y-4">
-            <h3 className="text-xl font-semibold">Calendar</h3>
+        <div className="p-4 space-y-4 pt-0">
+            <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold">Calendar</h3>
+                <ThemeToggle />
+            </div>
             <Calendar
                 mode="single"
                 selected={selectedDay}
@@ -197,9 +200,6 @@ export function SidebarCalendar() {
                 ) : (
                     <p className="text-gray-500 dark:text-gray-400">No future appointments.</p>
                 )}
-            </div>
-            <div className="fixed bottom-5 left-5">
-                <ThemeToggle />
             </div>
         </div>
     );
