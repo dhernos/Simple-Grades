@@ -112,7 +112,7 @@ export default function ProtectedLayout({
             />
           )}
 
-          <main className="flex-grow p-4 sm:p-6 lg:p-8 mx-auto w-full overflow-y-auto pb-20">
+          <main className="flex-grow p-4 sm:p-6 lg:p-8 mx-auto w-full pb-20">
             {children}
           </main>
         </div>
