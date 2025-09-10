@@ -52,7 +52,7 @@ export default function ProtectedLayout({
 
   if (status === "authenticated") {
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col h-screen overflow-auto">
         <div
           className="fixed inset-y-0 left-0 w-8 z-50 lg:hidden cursor-pointer"
           {...handlersEdge}

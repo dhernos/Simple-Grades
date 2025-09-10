@@ -102,7 +102,7 @@ export const authOptions = {
         return {
           ...session,
           user: {
-            id: "", // oder eine Dummy-ID, falls zulässig
+            id: "",
             name: null,
             email: null,
             image: null,
