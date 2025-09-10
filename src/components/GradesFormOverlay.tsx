@@ -138,8 +138,7 @@ export function GradesFormOverlay({ onGradeAdded }: { onGradeAdded: () => void }
               <Input
                 id="note-input"
                 type="number"
-                min="1"
-                max="6"
+                min="0"
                 value={note || ''}
                 onChange={(e) => setNote(parseInt(e.target.value))}
                 placeholder="Grade (e.g. 2)"

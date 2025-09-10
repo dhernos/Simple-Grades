@@ -173,7 +173,7 @@ export function GradesTable() {
     try {
       let endpoint: string;
       const method: string = 'DELETE';
- 
+
       if (itemTypeToDelete === 'subject') {
         if (isDeletingGradesOnly) {
           const params = new URLSearchParams({
@@ -189,11 +189,11 @@ export function GradesTable() {
       } else {
         return;
       }
- 
+
       const response = await fetch(endpoint, {
         method: method,
       });
- 
+
       if (!response.ok) {
         throw new Error("Failed to delete item");
       }
@@ -358,7 +358,7 @@ export function GradesTable() {
       {yearData.map((yearEntry) => (
         <div key={yearEntry.jahr} className="rounded-lg shadow-md p-4 mb-8">
           <h2 className="text-2xl font-bold mb-4">
-            Year: {yearEntry.jahr} <span className="text-2xl font-bold ml-4">Ø {yearEntry.overallAverage.toFixed(2)}</span>
+            Year: {yearEntry.jahr} <span className="lg:hidden text-2xl font-bold ml-4">Ø {yearEntry.overallAverage.toFixed(2)}</span>
           </h2>
 
           <div className="hidden lg:block">
@@ -410,7 +410,7 @@ export function GradesTable() {
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="lg:hidden">
             {yearEntry.subjects.map((subject) => (
               <div key={`${yearEntry.jahr}-${subject.id}`} className="rounded-md p-4 mb-4">

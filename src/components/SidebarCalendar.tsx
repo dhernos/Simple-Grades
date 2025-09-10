@@ -112,7 +112,7 @@ export function SidebarCalendar() {
     };
 
     return (
-        <div className="p-4 space-y-4 pt-0">
+        <div className="p-0 space-y-4 pt-0">
             <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold">Calendar</h3>
                 <ThemeToggle />
