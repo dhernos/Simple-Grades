@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma"
-import { protectedRouteWithParams } from "@/lib/protected-api";
+import { protectedRoute } from "@/lib/protected-api";
 import { Session } from 'next-auth';
 
 // Handler for DELETE
@@ -42,4 +42,4 @@ const deleteGradesBySubjectAndYearHandler = async (req: Request, session: Sessio
     }
 };
 
-export const DELETE = protectedRouteWithParams(deleteGradesBySubjectAndYearHandler);
+export const DELETE = protectedRoute(deleteGradesBySubjectAndYearHandler);
