@@ -32,8 +32,13 @@ export default function ProtectedLayout({
 
   if (status === "authenticated") {
     return (
-      <div className="flex flex-col min-h-screen">
-        <header className="fixed w-full top-0 z-50 py-5 shadow-lg backdrop-blur-sm bg-background/80">
+      <div className="flex flex-col h-screen overflow-auto">
+        <div
+          className="fixed inset-y-0 left-0 w-8 z-50 lg:hidden cursor-pointer"
+          {...handlersEdge}
+        />
+
+        <header className="fixed w-full top-0 z-50 py-4 shadow-lg backdrop-blur-sm bg-background/80">
           <nav className="flex items-center justify-between px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <div className="lg:hidden mr-4">

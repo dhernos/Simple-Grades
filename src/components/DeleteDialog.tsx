@@ -1,3 +1,4 @@
+"use client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,13 +12,14 @@ import {
 
 interface DeleteDialogProps {
   isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
   onCancel: () => void;
   onConfirm: () => void;
   itemType: string;
   isDeletingGradesOnly?: boolean;
 }
 
-export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType, isDeletingGradesOnly = false }: DeleteDialogProps) {
+export function DeleteDialog({ isOpen, onOpenChange, onCancel, onConfirm, itemType, isDeletingGradesOnly = false }: DeleteDialogProps) {
   const isSubject = itemType === 'subject';
 
   let descriptionText = "This action cannot be reversed. The selected grade will be permanently deleted.";
@@ -28,7 +30,7 @@ export function DeleteDialog({ isOpen, onCancel, onConfirm, itemType, isDeleting
   }
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onCancel}>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>

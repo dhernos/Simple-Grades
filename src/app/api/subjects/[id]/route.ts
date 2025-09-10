@@ -42,19 +42,28 @@ const deleteSubjectHandler = async (
   const { id } = context.params;
 
   try {
-    await prisma.subject.delete({
+    const subject = await prisma.subject.findFirst({
       where: {
         id,
         userId: session.user.id,
       },
     });
 
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
+    }
+    await prisma.subject.delete({
+      where: {
+        id: subject.id,
+      },
+    });
+
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error deleting subject:', error);
-    return NextResponse.json({ error: 'Subject not found.' }, { status: 404 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+};
 
 export const PUT = protectedRouteWithParams(putSubjectHandler);
 export const DELETE = protectedRouteWithParams(deleteSubjectHandler);
