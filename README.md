@@ -1,3 +1,9 @@
+<!--
+Copyright (C) 2025 github.com/dhernos
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 ### Simple Grades
 
 **Simple Grades** is a web application designed for personal use to track and manage academic grades and timetables. It provides a clean and intuitive interface to monitor progress and organize daily schedules efficiently.
