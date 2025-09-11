@@ -138,6 +138,6 @@ Contributions are welcome! If you find a bug or have a suggestion for a new feat
 
 ---
 
-### License
+## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html).
